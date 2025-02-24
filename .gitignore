@@ -1,0 +1,41 @@
+/target
+
+/.vscode/settings.json
+
+# === Rust Build Artifacts ===
+/target/
+**/*.rs.bk
+**/*.rmeta
+**/*.rlib
+
+# === Dependencies ===
+/Cargo.lock
+
+# === Rust Language Server (rust-analyzer) ===
+/*.rustc
+/.cargo/
+rust-toolchain.toml
+
+# === Editor and IDE Files ===
+.idea/
+.vscode/
+*.code-workspace
+
+# === OS-Specific Files ===
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# === Logs and Debugging ===
+/debug.log
+/logs/
+/*.log
+
+# === Binary and Temporary Files ===
+/*.exe
+/*.dll
+/*.dylib
+/*.so
+/*.out
+/*.app
+/*.bin
