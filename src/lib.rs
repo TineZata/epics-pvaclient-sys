@@ -1,7 +1,7 @@
 #[cxx::bridge]
 mod ffi {
     unsafe extern "C++" {
-        include!("pva_client_bridge.h");
+        include!("wrapper.h");
 
         fn get_pv_value(name: &str) -> String;
     }

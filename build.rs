@@ -1,6 +1,6 @@
 fn main() {
     cxx_build::bridge("src/lib.rs")
-        .file("src/pva_client_bridge.cpp")
+        .file("src/wrapper.cpp")
         .flag_if_supported("-std=c++17")
         .include("include")
         .include("D:/repos/3rdParty/epics-base/include")
