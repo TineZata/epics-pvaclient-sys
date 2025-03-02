@@ -1,14 +1,19 @@
+use std::env;
+
 fn main() {
+
+    let epics_base = env::var("EPICS_BASE").expect("EPICS_BASE environment variable not set");
+
     cxx_build::bridge("src/lib.rs")
         .file("src/wrapper.cpp")
         .flag_if_supported("-std=c++17")
         .include("include")
-        .include("D:/repos/3rdParty/epics-base/include")
-        .include("D:/repos/3rdParty/epics-base/include/compiler/msvc")
-        .include("D:/repos/3rdParty/epics-base/include/os/WIN32")
+        .include(format!("{}/include", epics_base))
+        .include(format!("{}/include/compiler/msvc", epics_base))
+        .include(format!("{}/include/os/WIN32", epics_base))
         .compile("epics_pvaclient_sys");
 
-    println!("cargo:rustc-link-search=native=D:/repos/3rdParty/epics-base/lib/windows-x64");
+        println!("cargo:rustc-link-search=native={}/lib/windows-x64", epics_base);
 
     // EPICS libraries that must be linked
     println!("cargo:rustc-link-lib=static=pvaClient");
