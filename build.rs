@@ -7,6 +7,7 @@ fn main() {
     cxx_build::bridge("src/lib.rs")
         .file("src/wrapper.cpp")
         .flag_if_supported("-std=c++17")
+        .flag_if_supported("/EHsc") // Enable exception handling for MSVC
         .include("include")
         .include(format!("{}/include", epics_base))
         .include(format!("{}/include/compiler/msvc", epics_base))

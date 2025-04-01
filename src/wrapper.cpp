@@ -1,9 +1,10 @@
 #include "wrapper.h"
+#include <pva/client.h>
 #include <sstream>
 
 
-std::unique_ptr<pvac::ClientProvider> rust_client_provider = nullptr;  // Initialize the global variable
-std::unique_ptr<pvac::ClientChannel> rust_client_channel = nullptr;  // Initialize the global variable
+std::unique_ptr<ClientProvider> rust_client_provider = nullptr;  // Initialize the global variable
+std::unique_ptr<ClientChannel> rust_client_channel = nullptr;  // Initialize the global variable
 
 rust::String get_pv_value(rust::Str name) {
     try {
@@ -22,10 +23,10 @@ rust::String get_pv_value(rust::Str name) {
     }
 }
 
-std::unique_ptr<pvac::ClientProvider> get_client_provider() {
+std::unique_ptr<ClientProvider> get_client_provider() {
     try {
         if (!rust_client_provider) {
-            rust_client_provider = std::make_unique<pvac::ClientProvider>("pva");
+            rust_client_provider = std::make_unique<ClientProvider>("pva");
         }
         return std::move(rust_client_provider);
     } catch (const std::exception& e) {
@@ -34,15 +35,14 @@ std::unique_ptr<pvac::ClientProvider> get_client_provider() {
     }
 }
 
-// Use rust_client_provider to create a ClientChannel
-std::unique_ptr<pvac::ClientChannel> get_connected_channel(rust::Str name) {
+std::unique_ptr<ClientChannel> get_client_channel(rust::Str name) {
     try {
         if (!rust_client_provider) {
             rust_client_provider = get_client_provider();
         }
         std::string name_str(name);  // Convert Rust `&str` to C++ `std::string`
-        pvac::ClientChannel channel(rust_client_provider->connect(name_str));
-        rust_client_channel = std::make_unique<pvac::ClientChannel>(std::move(channel));
+        auto channel = std::make_unique<ClientChannel>(rust_client_provider->connect(name_str));
+        rust_client_channel = std::move(channel);
         return std::move(rust_client_channel);  
     } catch (const std::exception& e) {
         std::cerr << "Error creating ClientChannel: " << e.what() << std::endl;
