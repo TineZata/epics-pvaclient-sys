@@ -6,23 +6,6 @@
 std::unique_ptr<ClientProvider> rust_client_provider = nullptr;  // Initialize the global variable
 std::unique_ptr<ClientChannel> rust_client_channel = nullptr;  // Initialize the global variable
 
-rust::String get_pv_value(rust::Str name) {
-    try {
-        std::string name_str(name);  // Convert Rust string to std::string
-
-        pvac::ClientProvider provider("pva");
-        pvac::ClientChannel channel(provider.connect(name_str));
-        
-        std::ostringstream result;
-        result << channel.name() << " : " << channel.get();
-
-        return rust::String(result.str());  // Convert std::string to rust::String
-    } catch (const std::exception& e) {
-        std::string error_msg = "Error: " + std::string(e.what());  // Concatenate using std::string
-        return rust::String(error_msg);  // Convert back to rust::String
-    }
-}
-
 std::unique_ptr<ClientProvider> get_client_provider() {
     try {
         if (!rust_client_provider) {
@@ -50,3 +33,25 @@ std::unique_ptr<ClientChannel> get_client_channel(rust::Str name) {
     }
 }
 
+rust::String get_pv_value(rust::Str name) {
+    try {
+        std::string name_str(name);  // Convert Rust string to std::string
+
+        /*pvac::ClientProvider provider("pva");
+        pvac::ClientChannel channel(provider.connect(name_str));*/
+        if (!rust_client_provider) {
+            rust_client_provider = get_client_provider();
+        }
+        if (!rust_client_channel) {
+            rust_client_channel = get_client_channel(name_str);  // Use the global variable
+        }
+        
+        std::ostringstream result;
+        result << rust_client_channel->name() << " : " << rust_client_channel->get();
+
+        return rust::String(result.str());  // Convert std::string to rust::String
+    } catch (const std::exception& e) {
+        std::string error_msg = "Error: " + std::string(e.what());  // Concatenate using std::string
+        return rust::String(error_msg);  // Convert back to rust::String
+    }
+}
