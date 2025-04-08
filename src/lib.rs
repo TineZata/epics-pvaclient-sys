@@ -1,7 +1,8 @@
-use cxx::UniquePtr;
+use cxx::SharedPtr;
 
 #[cxx::bridge]
 mod ffi {
+
     unsafe extern "C++" {
         include!("wrapper.h");
 
@@ -9,17 +10,17 @@ mod ffi {
         type ClientProvider;
         type ClientChannel;
 
-        fn get_client_provider() -> UniquePtr<ClientProvider>;
-        fn get_client_channel(name: &str) -> UniquePtr<ClientChannel>;
+        fn get_client_provider() -> SharedPtr<ClientProvider>;
+        fn get_client_channel(name: &str) -> SharedPtr<ClientChannel>;
         fn get_pv_value(name: &str) -> String;
     }
 }
 
-pub fn get_client_provider() -> UniquePtr<ffi::ClientProvider> {
+pub fn get_client_provider() -> SharedPtr<ffi::ClientProvider> {
     ffi::get_client_provider()
 }
 
-pub fn get_client_channel(name: &str) -> UniquePtr<ffi::ClientChannel> {
+pub fn get_client_channel(name: &str) -> SharedPtr<ffi::ClientChannel> {
     ffi::get_client_channel(name)
 }
 
