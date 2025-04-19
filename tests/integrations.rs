@@ -5,6 +5,12 @@ fn test_valid_client_provider() {
 }
 
 #[test]
+fn test_valid_client_provider_with_config() {
+    let config = epics_pvaclient_sys::get_client_provider_with_config();
+    assert!(!config.is_null(), "Failed to create a valid channel provider with config");
+}
+
+#[test]
 fn test_valid_client_channel() {
     let channel_name = "TEST:PV1";
     let channel = epics_pvaclient_sys::get_client_channel(&channel_name);

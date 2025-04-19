@@ -1,5 +1,4 @@
 #include "wrapper.h"
-#include <pva/client.h>
 #include <sstream>
 
 
@@ -8,15 +7,17 @@ std::shared_ptr<ClientChannel> rust_client_channel = nullptr;  // Initialize the
 
 std::shared_ptr<ClientProvider> get_client_provider() {
     try {
+        
         if (!rust_client_provider) {
             rust_client_provider = std::make_shared<ClientProvider>("pva");
         }
         return rust_client_provider;
     } catch (const std::exception& e) {
-        std::cerr << "Error creating ClientProvider: " << e.what() << std::endl;
+        std::cerr << "Error creating ClientConfig: " << e.what() << std::endl;
         return nullptr;
     }
 }
+
 
 std::shared_ptr<ClientChannel> get_client_channel(rust::Str name) {
     try {
@@ -31,17 +32,6 @@ std::shared_ptr<ClientChannel> get_client_channel(rust::Str name) {
         std::cerr << "Error creating ClientChannel: " << e.what() << std::endl;
         return nullptr;
     }
-}
-
-std::shared_ptr<PVStructure> build_pv_request(rust::Str field)
-{
-    std::string field_str(field);  // Convert Rust `&str` to C++ `std::string`
-    auto request = std::make_unique<PVStructure>(pvd::createRequest(field_str));
-    if (!request) {
-        std::cerr << "Error creating PVStructure request" << std::endl;
-        return nullptr;
-    }
-    return std::move(request);  // Move the unique_ptr to the caller
 }
 
 rust::String get_pv_value(rust::Str name) {
