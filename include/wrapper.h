@@ -19,18 +19,18 @@ struct NTScalar {
     double value;
     int32_t alarm_severity;
     int32_t alarm_status;
-    const char* alarm_message;
+    const char* alarm_message = nullptr;
     int64_t timestamp_seconds;
     int32_t timestamp_nanoseconds;
     int32_t timestamp_userTag;
     double display_limitLow;
     double display_limitHigh;
-    const char* display_description;
-    const char* display_units;
+    const char* display_description = nullptr;
+    const char* display_units = nullptr;
     int32_t display_precision;
     int32_t display_form_index;
-    const char** display_form_choices;
-    size_t display_form_choices_count;
+    const char** display_form_choices = nullptr;
+    size_t display_form_choices_count = 0;
     double control_limitLow;
     double control_limitHigh;
     double control_minStep;
@@ -38,12 +38,25 @@ struct NTScalar {
     double valueAlarm_lowAlarmLimit;
     double valueAlarm_lowWarningLimit;
     double valueAlarm_highWarningLimit;
-    double valueAlarm_highAlarmLimit;
-    int32_t valueAlarm_lowAlarmSeverity;
-    int32_t valueAlarm_lowWarningSeverity;
-    int32_t valueAlarm_highWarningSeverity;
-    int32_t valueAlarm_highAlarmSeverity;
-    int8_t valueAlarm_hysteresis;
+    double value_alarm_high_alarm_limit;
+    int32_t value_alarm_low_alarm_severity;
+    int32_t value_alarm_low_warning_severity;
+    int32_t value_alarm_high_warning_severity;
+    int32_t value_alarm_high_alarm_severity;
+    int8_t value_alarm_hysteresis;
+
+    // Destructor to clean up dynamically allocated memory
+    ~NTScalar() {
+        delete alarm_message;
+        delete display_description;
+        delete display_units;
+        if (display_form_choices) {
+            for (size_t i = 0; i < display_form_choices_count; ++i) {
+                delete display_form_choices[i];
+            }
+            delete[] display_form_choices;
+        }
+    }
 };
 
 // Bring epics types into the global namespace for compatibility with cxx
@@ -56,13 +69,11 @@ extern std::shared_ptr<ClientChannel> rust_client_channel;
 
 // Function to create a ClientProvider
 std::shared_ptr<ClientProvider> get_client_provider();
-// Function to create a ClientProvider with configuration
-std::shared_ptr<ClientProvider> get_client_provider_with_config();
 // Function to create a ClientConfig
 //std::shared_ptr<EpicsPvaConfig> get_client_config();
 // Function to create a ClientProvider
 std::shared_ptr<ClientChannel> get_client_channel(rust::Str name);
-// Function to get a PV value
-rust::String get_pv_value(rust::Str name);
+// Function to get all PV value fields as a string
+rust::String get_pv_value_fields_as_string(rust::Str name);
 // Function for extract_ntscalar
-std::shared_ptr<NTScalar> extract_ntscalar(std::shared_ptr<PVStructure> pvStructure);
+std::shared_ptr<NTScalar> get_pv_value_fields_as_struct(rust::Str name);

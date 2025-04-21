@@ -1,15 +1,12 @@
 #include "wrapper.h"
 
 // Helper function to extract a string array
-std::vector<const char *> extract_string_array(const epics::pvData::PVStringArray::shared_pointer &array)
-{
+std::vector<const char *> extract_string_array(const std::shared_ptr<const epics::pvData::PVStringArray> &array) {
     std::vector<const char *> result;
-    if (array)
-    {
+    if (array) {
         epics::pvData::shared_vector<const std::string> data;
         array->getAs(data);
-        for (const auto &str : data)
-        {
+        for (const auto &str : data) {
             result.push_back(strdup(str.c_str()));
         }
     }
@@ -17,16 +14,40 @@ std::vector<const char *> extract_string_array(const epics::pvData::PVStringArra
 }
 
 // Extract NTScalar fields from a PVStructure
-std::shared_ptr<NTScalar> extract_ntscalar(td::shared_ptr<PVStructure> handle)
+std::shared_ptr<NTScalar> get_pv_value_fields_as_struct(rust::Str name)
 {
-    if (!handle)
-        return nullptr;
-
-    auto *pvStructure = static_cast<epics::pvData::PVStructure *>(handle);
-    auto *ntScalar = std::make_shared<NTScalar>();
-
-    try
+    std::string name_str(name);  // Convert Rust `&str` to C++ `std::string`
+    if (!rust_client_provider)
     {
+        rust_client_provider = get_client_provider(); // Assuming this function initializes the provider
+    }
+    if (!rust_client_channel)
+    {
+        rust_client_channel = get_client_channel(name_str); // Assuming this function initializes the channel
+    }
+
+    // Check if the global channel is initialized
+    if (!rust_client_channel)
+    {
+        std::cerr << "ClientChannel is not initialized." << std::endl;
+        return nullptr;
+    }
+    // Retrieve the shared pointer from rust_client_channel
+    auto pvStructureSharedPtr = rust_client_channel->get();
+    if (!pvStructureSharedPtr) {
+        std::cerr << "Error: rust_client_channel->get() returned nullptr." << std::endl;
+        return nullptr;
+    }
+
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        std::cerr << "Error: rust_client_channel->get().get() returned nullptr." << std::endl;
+        return nullptr;
+    }
+    auto ntScalar = std::make_shared<NTScalar>();
+
+    try {
         // Extract value
         auto valueField = pvStructure->getSubField<epics::pvData::PVDouble>("value");
         ntScalar->value = valueField ? valueField->get() : 0.0;
@@ -60,14 +81,16 @@ std::shared_ptr<NTScalar> extract_ntscalar(td::shared_ptr<PVStructure> handle)
             ntScalar->display_precision = displayField->getSubField<epics::pvData::PVInt>("precision")->get();
 
             auto formField = displayField->getSubField<epics::pvData::PVStructure>("form");
-            if (formField)
-            {
+            if (formField) {
                 ntScalar->display_form_index = formField->getSubField<epics::pvData::PVInt>("index")->get();
-                auto choicesField = formField->getSubField<epics::pvData::PVStringArray>("choices");
-                auto choices = extract_string_array(choicesField);
-                ntScalar->display_form_choices_count = choices.size();
-                ntScalar->display_form_choices = new const char *[choices.size()];
-                std::copy(choices.begin(), choices.end(), ntScalar->display_form_choices);
+                auto choicesField = formField->getSubField<epics::pvData::PVValueArray<std::string>>("choices");
+                auto castedChoicesField = std::dynamic_pointer_cast<const epics::pvData::PVStringArray>(choicesField);
+                if (castedChoicesField) {
+                    auto choices = extract_string_array(castedChoicesField);
+                    ntScalar->display_form_choices_count = choices.size();
+                    ntScalar->display_form_choices = new const char *[choices.size()];
+                    std::copy(choices.begin(), choices.end(), ntScalar->display_form_choices);
+                }
             }
         }
 
@@ -88,17 +111,18 @@ std::shared_ptr<NTScalar> extract_ntscalar(td::shared_ptr<PVStructure> handle)
             ntScalar->valueAlarm_lowAlarmLimit = valueAlarmField->getSubField<epics::pvData::PVDouble>("lowAlarmLimit")->get();
             ntScalar->valueAlarm_lowWarningLimit = valueAlarmField->getSubField<epics::pvData::PVDouble>("lowWarningLimit")->get();
             ntScalar->valueAlarm_highWarningLimit = valueAlarmField->getSubField<epics::pvData::PVDouble>("highWarningLimit")->get();
-            ntScalar->valueAlarm_highAlarmLimit = valueAlarmField->getSubField<epics::pvData::PVDouble>("highAlarmLimit")->get();
-            ntScalar->valueAlarm_lowAlarmSeverity = valueAlarmField->getSubField<epics::pvData::PVInt>("lowAlarmSeverity")->get();
-            ntScalar->valueAlarm_lowWarningSeverity = valueAlarmField->getSubField<epics::pvData::PVInt>("lowWarningSeverity")->get();
-            ntScalar->valueAlarm_highWarningSeverity = valueAlarmField->getSubField<epics::pvData::PVInt>("highWarningSeverity")->get();
-            ntScalar->valueAlarm_highAlarmSeverity = valueAlarmField->getSubField<epics::pvData::PVInt>("highAlarmSeverity")->get();
-            ntScalar->valueAlarm_hysteresis = valueAlarmField->getSubField<epics::pvData::PVByte>("hysteresis")->get();
+            ntScalar->value_alarm_high_alarm_limit = valueAlarmField->getSubField<epics::pvData::PVDouble>("highAlarmLimit")->get();
+            ntScalar->value_alarm_low_alarm_severity = valueAlarmField->getSubField<epics::pvData::PVInt>("lowAlarmSeverity")->get();
+            ntScalar->value_alarm_low_warning_severity = valueAlarmField->getSubField<epics::pvData::PVInt>("lowWarningSeverity")->get();
+            ntScalar->value_alarm_high_warning_severity = valueAlarmField->getSubField<epics::pvData::PVInt>("highWarningSeverity")->get();
+            ntScalar->value_alarm_high_alarm_severity = valueAlarmField->getSubField<epics::pvData::PVInt>("highAlarmSeverity")->get();
+            ntScalar->value_alarm_hysteresis = valueAlarmField->getSubField<epics::pvData::PVByte>("hysteresis")->get();
         }
     }
-    catch (...)
+    catch (std::exception &e)
     {
-        delete ntScalar;
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
         return nullptr;
     }
 

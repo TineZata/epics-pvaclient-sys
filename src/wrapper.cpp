@@ -34,7 +34,7 @@ std::shared_ptr<ClientChannel> get_client_channel(rust::Str name) {
     }
 }
 
-rust::String get_pv_value(rust::Str name) {
+rust::String get_pv_value_fields_as_string(rust::Str name) {
     try {
         std::string name_str(name);  // Convert Rust string to std::string
 
