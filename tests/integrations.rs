@@ -1,3 +1,5 @@
+use epics_pvaclient_sys::NTScalar;
+
 #[test]
 fn test_valid_client_provider() {
     let provider = epics_pvaclient_sys::get_client_provider();
@@ -21,6 +23,6 @@ fn test_get_pv_does_not_timeout() {
 #[test]
 fn test_get_pv_as_struct_does_not_timeout() {
     let pv_name = "TEST:PV1";
-    let value = epics_pvaclient_sys::get_pv_fields_as_struct(&pv_name);
-    assert!(!value.is_null(), "Failed to get PV fields as struct for {}", pv_name);
+    let value: Option<NTScalar> = epics_pvaclient_sys::get_pv_fields_as_struct(&pv_name);
+    assert!(value.is_some(), "Failed to get PV fields as struct for {}", pv_name);
 }

@@ -33,7 +33,13 @@ std::shared_ptr<NTScalar> get_pv_value_fields_as_struct(rust::Str name)
         return nullptr;
     }
     // Retrieve the shared pointer from rust_client_channel
-    auto pvStructureSharedPtr = rust_client_channel->get();
+    std::shared_ptr<const epics::pvData::PVStructure> pvStructureSharedPtr;
+    try {
+        pvStructureSharedPtr = rust_client_channel->get(3.0, nullptr);
+    } catch (const std::exception &e) {
+        std::cerr << "Error getting : " << name_str << e.what() << std::endl;
+        return nullptr;
+    }
     if (!pvStructureSharedPtr) {
         std::cerr << "Error: rust_client_channel->get() returned nullptr." << std::endl;
         return nullptr;
@@ -127,4 +133,117 @@ std::shared_ptr<NTScalar> get_pv_value_fields_as_struct(rust::Str name)
     }
 
     return ntScalar;
+}
+
+// Accessor methods for NTScalar fields
+double nt_scalar_get_value(const NTScalar& scalar) {
+    return scalar.value;
+}
+
+int nt_scalar_get_alarm_severity(const NTScalar& scalar) {
+    return scalar.alarm_severity;
+}
+
+int nt_scalar_get_alarm_status(const NTScalar& scalar) {
+    return scalar.alarm_status;
+}
+
+const char* nt_scalar_get_alarm_message(const NTScalar& scalar) {
+    return scalar.alarm_message;
+}
+
+int64_t nt_scalar_get_timestamp_seconds(const NTScalar& scalar) {
+    return scalar.timestamp_seconds;
+}
+
+int32_t nt_scalar_get_timestamp_nanoseconds(const NTScalar& scalar) {
+    return scalar.timestamp_nanoseconds;
+}
+
+int32_t nt_scalar_get_timestamp_user_tag(const NTScalar& scalar) {
+    return scalar.timestamp_userTag;
+}
+
+double nt_scalar_get_display_limit_low(const NTScalar& scalar) {
+    return scalar.display_limitLow;
+}
+
+double nt_scalar_get_display_limit_high(const NTScalar& scalar) {
+    return scalar.display_limitHigh;
+}
+
+const char* nt_scalar_get_display_description(const NTScalar& scalar) {
+    return scalar.display_description;
+}
+
+const char* nt_scalar_get_display_units(const NTScalar& scalar) {
+    return scalar.display_units;
+}
+
+int32_t nt_scalar_get_display_precision(const NTScalar& scalar) {
+    return scalar.display_precision;
+}
+
+int32_t nt_scalar_get_display_form_index(const NTScalar& scalar) {
+    return scalar.display_form_index;
+}
+
+const char* const* nt_scalar_get_display_form_choices(const NTScalar& scalar) {
+    return scalar.display_form_choices;
+}
+
+size_t nt_scalar_get_display_form_choices_count(const NTScalar& scalar) {
+    return scalar.display_form_choices_count;
+}
+
+double nt_scalar_get_control_limit_low(const NTScalar& scalar) {
+    return scalar.control_limitLow;
+}
+
+double nt_scalar_get_control_limit_high(const NTScalar& scalar) {
+    return scalar.control_limitHigh;
+}
+
+double nt_scalar_get_control_min_step(const NTScalar& scalar) {
+    return scalar.control_minStep;
+}
+
+bool nt_scalar_get_value_alarm_active(const NTScalar& scalar) {
+    return scalar.valueAlarm_active;
+}
+
+double nt_scalar_get_value_alarm_low_alarm_limit(const NTScalar& scalar) {
+    return scalar.valueAlarm_lowAlarmLimit;
+}
+
+double nt_scalar_get_value_alarm_low_warning_limit(const NTScalar& scalar) {
+    return scalar.valueAlarm_lowWarningLimit;
+}
+
+double nt_scalar_get_value_alarm_high_warning_limit(const NTScalar& scalar) {
+    return scalar.valueAlarm_highWarningLimit;
+}
+
+double nt_scalar_get_value_alarm_high_alarm_limit(const NTScalar& scalar) {
+    return scalar.value_alarm_high_alarm_limit;
+}
+
+int32_t nt_scalar_get_value_alarm_low_alarm_severity(const NTScalar& scalar) {
+    return scalar.value_alarm_low_alarm_severity;
+}
+
+int32_t nt_scalar_get_value_alarm_low_warning_severity(const NTScalar& scalar) {
+    return scalar.value_alarm_low_warning_severity;
+}
+
+int32_t nt_scalar_get_value_alarm_high_warning_severity(const NTScalar& scalar) {
+    return scalar.value_alarm_high_warning_severity;
+}
+
+int32_t nt_scalar_get_value_alarm_high_alarm_severity(const NTScalar& scalar) {
+    return scalar.value_alarm_high_alarm_severity;
+}
+
+int8_t nt_scalar_get_value_alarm_hysteresis(const NTScalar& scalar) {
+    return scalar.value_alarm_hysteresis;
 }

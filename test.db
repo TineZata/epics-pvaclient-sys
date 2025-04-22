@@ -1,5 +1,5 @@
 record(ao, "TEST:PV1") {
-    field(DESC, "Output test PV")
+    field(DESC, "Output test PV 1")
     field(DTYP, "Soft Channel")
     field(VAL, "1.23")
     field(PREC, "2")
@@ -7,9 +7,16 @@ record(ao, "TEST:PV1") {
 }
 
 record(ai, "TEST:PV2") {
-    field(DESC, "Input test PV")
+    field(DESC, "Input test PV 2")
     field(DTYP, "Soft Channel")
     field(VAL, "4.56")
     field(PREC, "2")
+    info(group, "TEST:GROUP1")
+}
+
+record(longin, "TEST:PV3") {
+    field(DESC, "Input test PV 3")
+    field(DTYP, "Soft Channel")
+    field(VAL, "303")
     info(group, "TEST:GROUP1")
 }
