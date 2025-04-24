@@ -55,22 +55,22 @@ extern "C" {
     uint64_t nt_scalar_get_value_unsigned_long(std::shared_ptr<PVStructure> pvStructure);
     float nt_scalar_get_value_float(std::shared_ptr<PVStructure> pvStructure);
     double nt_scalar_get_value_double(std::shared_ptr<PVStructure> pvStructure);
-    const char* nt_scalar_get_value_string(std::shared_ptr<PVStructure> pvStructure);
+    rust::String nt_scalar_get_value_string(std::shared_ptr<PVStructure> pvStructure);
     int8_t nt_scalar_get_value_type(std::shared_ptr<PVStructure> pvStructure);
 
     int nt_scalar_get_alarm_severity(std::shared_ptr<PVStructure> pvStructure);
     int nt_scalar_get_alarm_status(std::shared_ptr<PVStructure> pvStructure);
-    const char* nt_scalar_get_alarm_message(std::shared_ptr<PVStructure> pvStructure);
+    rust::String nt_scalar_get_alarm_message(std::shared_ptr<PVStructure> pvStructure);
     int64_t nt_scalar_get_timestamp_seconds(std::shared_ptr<PVStructure> pvStructure);
     int32_t nt_scalar_get_timestamp_nanoseconds(std::shared_ptr<PVStructure> pvStructure);
     int32_t nt_scalar_get_timestamp_user_tag(std::shared_ptr<PVStructure> pvStructure);
     double nt_scalar_get_display_limit_low(std::shared_ptr<PVStructure> pvStructure);
     double nt_scalar_get_display_limit_high(std::shared_ptr<PVStructure> pvStructure);
-    const char* nt_scalar_get_display_description(std::shared_ptr<PVStructure> pvStructure);
-    const char* nt_scalar_get_display_units(std::shared_ptr<PVStructure> pvStructure);
+    rust::String nt_scalar_get_display_description(std::shared_ptr<PVStructure> pvStructure);
+    rust::String nt_scalar_get_display_units(std::shared_ptr<PVStructure> pvStructure);
     int32_t nt_scalar_get_display_precision(std::shared_ptr<PVStructure> pvStructure);
     int32_t nt_scalar_get_display_form_index(std::shared_ptr<PVStructure> pvStructure);
-    const char* const* nt_scalar_get_display_form_choices(std::shared_ptr<PVStructure> pvStructure);
+    vec<rust::String> nt_scalar_get_display_form_choices(std::shared_ptr<PVStructure> pvStructure);
     size_t nt_scalar_get_display_form_choices_count(std::shared_ptr<PVStructure> pvStructure);
     double nt_scalar_get_control_limit_low(std::shared_ptr<PVStructure> pvStructure);
     double nt_scalar_get_control_limit_high(std::shared_ptr<PVStructure> pvStructure);

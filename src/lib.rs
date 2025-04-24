@@ -15,7 +15,7 @@ pub enum NTScalarValue {
     String(String),
 }
 
-pub struct RustPVStructure {
+pub struct PVStructure {
     pub value: NTScalarValue,
     pub alarm_severity: i32,
     pub alarm_status: i32,
@@ -144,7 +144,7 @@ pub fn get_pv_fields_as_string(name: &str) -> String {
     ffi::get_pv_value_fields_as_string(name)
 }
 
-pub fn get_pv_fields_as_struct(name: &str) -> Option<RustPVStructure> {
+pub fn get_pv_fields_as_struct(name: &str) -> Option<PVStructure> {
     // Convert the shared pointer to NTScalar to a raw pointer
     let pv_struct_ptr = ffi::get_pv_value_fields_as_struct(name);
     
@@ -153,7 +153,7 @@ pub fn get_pv_fields_as_struct(name: &str) -> Option<RustPVStructure> {
         return None; // Return None if the pointer is null
     }
 
-    Some(RustPVStructure {
+    Some(PVStructure {
         value: {
             let value_type = ffi::nt_scalar_get_value_type(pv_struct_ptr.clone());
             match value_type {
