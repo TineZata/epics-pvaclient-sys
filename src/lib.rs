@@ -1,22 +1,35 @@
 use cxx::SharedPtr;
-use std::os::raw::c_char;
 
-#[repr(C)]
-pub struct NTScalar {
-    pub value: f64,
+pub enum NTScalarValue {
+    Boolean(bool),
+    Byte(i8),
+    Short(i16),
+    Int(i32),
+    Long(i64),
+    UByte(u8),
+    UShort(u16),
+    UInt(u32),
+    ULong(u64),
+    Float(f32),
+    Double(f64),
+    String(String),
+}
+
+pub struct RustPVStructure {
+    pub value: NTScalarValue,
     pub alarm_severity: i32,
     pub alarm_status: i32,
-    pub alarm_message: *const c_char,
+    pub alarm_message: String,
     pub timestamp_seconds: i64,
     pub timestamp_nanoseconds: i32,
     pub timestamp_user_tag: i32,
     pub display_limit_low: f64,
     pub display_limit_high: f64,
-    pub display_description: *const c_char,
-    pub display_units: *const c_char,
+    pub display_description: String,
+    pub display_units: String,
     pub display_precision: i32,
     pub display_form_index: i32,
-    pub display_form_choices: *const *const c_char,
+    pub display_form_choices: Vec<String>,
     pub display_form_choices_count: usize,
     pub control_limit_low: f64,
     pub control_limit_high: f64,
@@ -30,7 +43,7 @@ pub struct NTScalar {
     pub value_alarm_low_warning_severity: i32,
     pub value_alarm_high_warning_severity: i32,
     pub value_alarm_high_alarm_severity: i32,
-    pub value_alarm_hysteresis: i8,
+    pub value_alarm_hysteresis: i8
 }
 
 #[cxx::bridge]
@@ -42,43 +55,56 @@ mod ffi {
         // Declare opaque types
         type ClientProvider;
         type ClientChannel;
-        type NTScalar;
+        type PVStructure;
 
         // Declare functions that return shared pointers to C++ classes
         fn get_client_provider() -> SharedPtr<ClientProvider>;
         fn get_client_channel(name: &str) -> SharedPtr<ClientChannel>;
         fn get_pv_value_fields_as_string(name: &str) -> String;
-        fn get_pv_value_fields_as_struct(name: &str) -> SharedPtr<NTScalar>;
+        fn get_pv_value_fields_as_struct(name: &str) -> SharedPtr<PVStructure>;
 
         // Declare accessor methods for NTScalar
-        fn nt_scalar_get_value(scalar: &NTScalar) -> f64;
-        fn nt_scalar_get_alarm_severity(scalar: &NTScalar) -> i32;
-        fn nt_scalar_get_alarm_status(scalar: &NTScalar) -> i32;
-        fn nt_scalar_get_alarm_message(scalar: &NTScalar) -> *const c_char;
-        fn nt_scalar_get_timestamp_seconds(scalar: &NTScalar) -> i64;
-        fn nt_scalar_get_timestamp_nanoseconds(scalar: &NTScalar) -> i32;
-        fn nt_scalar_get_timestamp_user_tag(scalar: &NTScalar) -> i32;
-        fn nt_scalar_get_display_limit_low(scalar: &NTScalar) -> f64;
-        fn nt_scalar_get_display_limit_high(scalar: &NTScalar) -> f64;
-        fn nt_scalar_get_display_description(scalar: &NTScalar) -> *const c_char;
-        fn nt_scalar_get_display_units(scalar: &NTScalar) -> *const c_char;
-        fn nt_scalar_get_display_precision(scalar: &NTScalar) -> i32;
-        fn nt_scalar_get_display_form_index(scalar: &NTScalar) -> i32;
-        fn nt_scalar_get_display_form_choices(scalar: &NTScalar) -> *const *const c_char;
-        fn nt_scalar_get_display_form_choices_count(scalar: &NTScalar) -> usize;
-        fn nt_scalar_get_control_limit_low(scalar: &NTScalar) -> f64;
-        fn nt_scalar_get_control_limit_high(scalar: &NTScalar) -> f64;
-        fn nt_scalar_get_control_min_step(scalar: &NTScalar) -> f64;
-        fn nt_scalar_get_value_alarm_active(scalar: &NTScalar) -> bool;
-        fn nt_scalar_get_value_alarm_low_alarm_limit(scalar: &NTScalar) -> f64;
-        fn nt_scalar_get_value_alarm_low_warning_limit(scalar: &NTScalar) -> f64;
-        fn nt_scalar_get_value_alarm_high_warning_limit(scalar: &NTScalar) -> f64;
-        fn nt_scalar_get_value_alarm_high_alarm_limit(scalar: &NTScalar) -> f64;
-        fn nt_scalar_get_value_alarm_low_alarm_severity(scalar: &NTScalar) -> i32;
-        fn nt_scalar_get_value_alarm_low_warning_severity(scalar: &NTScalar) -> i32;
-        fn nt_scalar_get_value_alarm_high_warning_severity(scalar: &NTScalar) -> i32;
-        fn nt_scalar_get_value_alarm_high_alarm_severity(scalar: &NTScalar) -> i32;
-        fn nt_scalar_get_value_alarm_hysteresis(scalar: &NTScalar) -> i8;
+        fn nt_scalar_get_value_boolean(pvdata: SharedPtr<PVStructure>) -> bool;
+        fn nt_scalar_get_value_byte(pvdata: SharedPtr<PVStructure>) -> i8;
+        fn nt_scalar_get_value_short(pvdata: SharedPtr<PVStructure>) -> i16;
+        fn nt_scalar_get_value_int(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_scalar_get_value_long(pvdata: SharedPtr<PVStructure>) -> i64;
+        fn nt_scalar_get_value_ubyte(pvdata: SharedPtr<PVStructure>) -> u8;
+        fn nt_scalar_get_value_ushort(pvdata: SharedPtr<PVStructure>) -> u16;
+        fn nt_scalar_get_value_uint(pvdata: SharedPtr<PVStructure>) -> u32;
+        fn nt_scalar_get_value_ulong(pvdata: SharedPtr<PVStructure>) -> u64;
+        fn nt_scalar_get_value_float(pvdata: SharedPtr<PVStructure>) -> f32;
+        fn nt_scalar_get_value_double(pvdata: SharedPtr<PVStructure>) -> f64;
+        fn nt_scalar_get_value_string(pvdata: SharedPtr<PVStructure>) -> *const c_char;
+        fn nt_scalar_get_value_type(pvdata: SharedPtr<PVStructure>) -> i8;
+
+        fn nt_scalar_get_alarm_severity(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_scalar_get_alarm_status(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_scalar_get_alarm_message(pvdata: SharedPtr<PVStructure>) -> *const c_char;
+        fn nt_scalar_get_timestamp_seconds(pvdata: SharedPtr<PVStructure>) -> i64;
+        fn nt_scalar_get_timestamp_nanoseconds(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_scalar_get_timestamp_user_tag(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_scalar_get_display_limit_low(pvdata: SharedPtr<PVStructure>) -> f64;
+        fn nt_scalar_get_display_limit_high(pvdata: SharedPtr<PVStructure>) -> f64;
+        fn nt_scalar_get_display_description(pvdata: SharedPtr<PVStructure>) -> *const c_char;
+        fn nt_scalar_get_display_units(pvdata: SharedPtr<PVStructure>) -> *const c_char;
+        fn nt_scalar_get_display_precision(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_scalar_get_display_form_index(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_scalar_get_display_form_choices(pvdata: SharedPtr<PVStructure>) -> *const *const c_char;
+        fn nt_scalar_get_display_form_choices_count(pvdata: SharedPtr<PVStructure>) -> usize;
+        fn nt_scalar_get_control_limit_low(pvdata: SharedPtr<PVStructure>) -> f64;
+        fn nt_scalar_get_control_limit_high(pvdata: SharedPtr<PVStructure>) -> f64;
+        fn nt_scalar_get_control_min_step(pvdata: SharedPtr<PVStructure>) -> f64;
+        fn nt_scalar_get_value_alarm_active(pvdata: SharedPtr<PVStructure>) -> bool;
+        fn nt_scalar_get_value_alarm_low_alarm_limit(pvdata: SharedPtr<PVStructure>) -> f64;
+        fn nt_scalar_get_value_alarm_low_warning_limit(pvdata: SharedPtr<PVStructure>) -> f64;
+        fn nt_scalar_get_value_alarm_high_warning_limit(pvdata: SharedPtr<PVStructure>) -> f64;
+        fn nt_scalar_get_value_alarm_high_alarm_limit(pvdata: SharedPtr<PVStructure>) -> f64;
+        fn nt_scalar_get_value_alarm_low_alarm_severity(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_scalar_get_value_alarm_low_warning_severity(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_scalar_get_value_alarm_high_warning_severity(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_scalar_get_value_alarm_high_alarm_severity(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_scalar_get_value_alarm_hysteresis(pvdata: SharedPtr<PVStructure>) -> i8;
 
     }
 }
@@ -118,74 +144,102 @@ pub fn get_pv_fields_as_string(name: &str) -> String {
     ffi::get_pv_value_fields_as_string(name)
 }
 
-pub fn get_pv_fields_as_struct(name: &str) -> Option<NTScalar> {
+pub fn get_pv_fields_as_struct(name: &str) -> Option<RustPVStructure> {
     // Convert the shared pointer to NTScalar to a raw pointer
-    let nt_scalar_ptr = ffi::get_pv_value_fields_as_struct(name);
+    let pv_struct_ptr = ffi::get_pv_value_fields_as_struct(name);
     
     // Check if the pointer is null
-    if nt_scalar_ptr.is_null() {
+    if pv_struct_ptr.is_null() {
         return None; // Return None if the pointer is null
     }
 
-    // Convert the shared pointer to a reference to NTScalar
-    let nt_scalar = nt_scalar_ptr.as_ref()?;
-
-    Some(NTScalar {
-        value: ffi::nt_scalar_get_value(nt_scalar),
-        alarm_severity: ffi::nt_scalar_get_alarm_severity(nt_scalar),
-        alarm_status: ffi::nt_scalar_get_alarm_status(nt_scalar),
-        alarm_message: {
-            let ptr = ffi::nt_scalar_get_alarm_message(nt_scalar);
-            if ptr.is_null() {
-                std::ptr::null()
-            } else {
-                ptr
+    Some(RustPVStructure {
+        value: {
+            let value_type = ffi::nt_scalar_get_value_type(pv_struct_ptr.clone());
+            match value_type {
+                0 => NTScalarValue::Boolean(ffi::nt_scalar_get_value_boolean(pv_struct_ptr.clone())),
+                1 => NTScalarValue::Byte(ffi::nt_scalar_get_value_byte(pv_struct_ptr.clone())),
+                2 => NTScalarValue::Short(ffi::nt_scalar_get_value_short(pv_struct_ptr.clone())),
+                3 => NTScalarValue::Int(ffi::nt_scalar_get_value_int(pv_struct_ptr.clone())),
+                4 => NTScalarValue::Long(ffi::nt_scalar_get_value_long(pv_struct_ptr.clone())),
+                5 => NTScalarValue::UByte(ffi::nt_scalar_get_value_ubyte(pv_struct_ptr.clone())),
+                6 => NTScalarValue::UShort(ffi::nt_scalar_get_value_ushort(pv_struct_ptr.clone())),
+                7 => NTScalarValue::UInt(ffi::nt_scalar_get_value_uint(pv_struct_ptr.clone())),
+                8 => NTScalarValue::ULong(ffi::nt_scalar_get_value_ulong(pv_struct_ptr.clone())),
+                9 => NTScalarValue::Float(ffi::nt_scalar_get_value_float(pv_struct_ptr.clone())),
+                10 => NTScalarValue::Double(ffi::nt_scalar_get_value_double(pv_struct_ptr.clone())),
+                11 => {
+                    let ptr = ffi::nt_scalar_get_value_string(pv_struct_ptr.clone());
+                    if ptr.is_null() {
+                        NTScalarValue::String(String::new())
+                    } else {
+                        NTScalarValue::String(unsafe { std::ffi::CStr::from_ptr(ptr).to_string_lossy().into_owned() })
+                    }
+                },
+                _ => panic!("Unknown type"),
             }
         },
-        timestamp_seconds: ffi::nt_scalar_get_timestamp_seconds(nt_scalar),
-        timestamp_nanoseconds: ffi::nt_scalar_get_timestamp_nanoseconds(nt_scalar),
-        timestamp_user_tag: ffi::nt_scalar_get_timestamp_user_tag(nt_scalar),
-        display_limit_low: ffi::nt_scalar_get_display_limit_low(nt_scalar),
-        display_limit_high: ffi::nt_scalar_get_display_limit_high(nt_scalar),
-        display_description:  {
-            let ptr = ffi::nt_scalar_get_display_description(nt_scalar);
+        alarm_severity: ffi::nt_scalar_get_alarm_severity(pv_struct_ptr.clone()),
+        alarm_status: ffi::nt_scalar_get_alarm_status(pv_struct_ptr.clone()),
+        alarm_message: {
+            let ptr = ffi::nt_scalar_get_alarm_message(pv_struct_ptr.clone());
             if ptr.is_null() {
-                std::ptr::null()
+                String::new()
             } else {
-                ptr
+                unsafe { std::ffi::CStr::from_ptr(ptr).to_string_lossy().into_owned() }
+            }
+        },
+        timestamp_seconds: ffi::nt_scalar_get_timestamp_seconds(pv_struct_ptr.clone()),
+        timestamp_nanoseconds: ffi::nt_scalar_get_timestamp_nanoseconds(pv_struct_ptr.clone()),
+        timestamp_user_tag: ffi::nt_scalar_get_timestamp_user_tag(pv_struct_ptr.clone()),
+        display_limit_low: ffi::nt_scalar_get_display_limit_low(pv_struct_ptr.clone()),
+        display_limit_high: ffi::nt_scalar_get_display_limit_high(pv_struct_ptr.clone()),
+        display_description:  {
+            let ptr = ffi::nt_scalar_get_display_description(pv_struct_ptr.clone());
+            if ptr.is_null() {
+                String::new()
+            } else {
+                unsafe { std::ffi::CStr::from_ptr(ptr).to_string_lossy().into_owned() }
             }
         },
         display_units: {
-            let ptr = ffi::nt_scalar_get_display_units(nt_scalar);
+            let ptr = ffi::nt_scalar_get_display_units(pv_struct_ptr.clone());
             if ptr.is_null() {
-                std::ptr::null()
+                String::new()
             } else {
-                ptr
+                unsafe { std::ffi::CStr::from_ptr(ptr).to_string_lossy().into_owned() }
             }
         },
-        display_precision: ffi::nt_scalar_get_display_precision(nt_scalar),
-        display_form_index: ffi::nt_scalar_get_display_form_index(nt_scalar),
+        display_precision: ffi::nt_scalar_get_display_precision(pv_struct_ptr.clone()),
+        display_form_index: ffi::nt_scalar_get_display_form_index(pv_struct_ptr.clone()),
         display_form_choices: {
-            let ptr = ffi::nt_scalar_get_display_form_choices(nt_scalar);
+            let ptr = ffi::nt_scalar_get_display_form_choices(pv_struct_ptr.clone());
             if ptr.is_null() {
-                std::ptr::null()
+                Vec::new()
             } else {
-                ptr
+                let choices = unsafe { std::slice::from_raw_parts(ptr, ffi::nt_scalar_get_display_form_choices_count(pv_struct_ptr.clone())) };
+                choices.iter().map(|&choice| {
+                    if choice.is_null() {
+                        String::new()
+                    } else {
+                        unsafe { std::ffi::CStr::from_ptr(choice).to_string_lossy().into_owned() }
+                    }
+                }).collect::<Vec<_>>()
             }
         },
-        display_form_choices_count: ffi::nt_scalar_get_display_form_choices_count(nt_scalar),
-        control_limit_low: ffi::nt_scalar_get_control_limit_low(nt_scalar),
-        control_limit_high: ffi::nt_scalar_get_control_limit_high(nt_scalar),
-        control_min_step: ffi::nt_scalar_get_control_min_step(nt_scalar),
-        value_alarm_active: ffi::nt_scalar_get_value_alarm_active(nt_scalar),
-        value_alarm_low_alarm_limit: ffi::nt_scalar_get_value_alarm_low_alarm_limit(nt_scalar),
-        value_alarm_low_warning_limit: ffi::nt_scalar_get_value_alarm_low_warning_limit(nt_scalar),
-        value_alarm_high_warning_limit: ffi::nt_scalar_get_value_alarm_high_warning_limit(nt_scalar),
-        value_alarm_high_alarm_limit: ffi::nt_scalar_get_value_alarm_high_alarm_limit(nt_scalar),
-        value_alarm_low_alarm_severity: ffi::nt_scalar_get_value_alarm_low_alarm_severity(nt_scalar),
-        value_alarm_low_warning_severity: ffi::nt_scalar_get_value_alarm_low_warning_severity(nt_scalar),
-        value_alarm_high_warning_severity: ffi::nt_scalar_get_value_alarm_high_warning_severity(nt_scalar),
-        value_alarm_high_alarm_severity: ffi::nt_scalar_get_value_alarm_high_alarm_severity(nt_scalar),
-        value_alarm_hysteresis: ffi::nt_scalar_get_value_alarm_hysteresis(nt_scalar),
+        display_form_choices_count: ffi::nt_scalar_get_display_form_choices_count(pv_struct_ptr.clone()),
+        control_limit_low: ffi::nt_scalar_get_control_limit_low(pv_struct_ptr.clone()),
+        control_limit_high: ffi::nt_scalar_get_control_limit_high(pv_struct_ptr.clone()),
+        control_min_step: ffi::nt_scalar_get_control_min_step(pv_struct_ptr.clone()),
+        value_alarm_active: ffi::nt_scalar_get_value_alarm_active(pv_struct_ptr.clone()),
+        value_alarm_low_alarm_limit: ffi::nt_scalar_get_value_alarm_low_alarm_limit(pv_struct_ptr.clone()),
+        value_alarm_low_warning_limit: ffi::nt_scalar_get_value_alarm_low_warning_limit(pv_struct_ptr.clone()),
+        value_alarm_high_warning_limit: ffi::nt_scalar_get_value_alarm_high_warning_limit(pv_struct_ptr.clone()),
+        value_alarm_high_alarm_limit: ffi::nt_scalar_get_value_alarm_high_alarm_limit(pv_struct_ptr.clone()),
+        value_alarm_low_alarm_severity: ffi::nt_scalar_get_value_alarm_low_alarm_severity(pv_struct_ptr.clone()),
+        value_alarm_low_warning_severity: ffi::nt_scalar_get_value_alarm_low_warning_severity(pv_struct_ptr.clone()),
+        value_alarm_high_warning_severity: ffi::nt_scalar_get_value_alarm_high_warning_severity(pv_struct_ptr.clone()),
+        value_alarm_high_alarm_severity: ffi::nt_scalar_get_value_alarm_high_alarm_severity(pv_struct_ptr.clone()),
+        value_alarm_hysteresis: ffi::nt_scalar_get_value_alarm_hysteresis(pv_struct_ptr.clone()),
     })
 }

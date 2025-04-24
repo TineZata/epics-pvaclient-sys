@@ -14,7 +14,7 @@ std::vector<const char *> extract_string_array(const std::shared_ptr<const epics
 }
 
 // Extract NTScalar fields from a PVStructure
-std::shared_ptr<NTScalar> get_pv_value_fields_as_struct(rust::Str name)
+std::shared_ptr<PVStructure> get_pv_value_fields_as_struct(rust::Str name)
 {
     std::string name_str(name);  // Convert Rust `&str` to C++ `std::string`
     if (!rust_client_provider)
@@ -33,7 +33,7 @@ std::shared_ptr<NTScalar> get_pv_value_fields_as_struct(rust::Str name)
         return nullptr;
     }
     // Retrieve the shared pointer from rust_client_channel
-    std::shared_ptr<const epics::pvData::PVStructure> pvStructureSharedPtr;
+    std::shared_ptr<PVStructure> pvStructureSharedPtr;
     try {
         pvStructureSharedPtr = rust_client_channel->get(3.0, nullptr);
     } catch (const std::exception &e) {
@@ -45,205 +45,849 @@ std::shared_ptr<NTScalar> get_pv_value_fields_as_struct(rust::Str name)
         return nullptr;
     }
 
+    return pVStructureSharedPtr;
+}
+
+bool nt_scalar_get_value_boolean(std::shared_ptr<PVStructure> pvStructure) {
+    bool value = false;
     // Retrieve the raw pointer from the shared pointer
     const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
     if (!pvStructure) {
-        std::cerr << "Error: rust_client_channel->get().get() returned nullptr." << std::endl;
-        return nullptr;
+        return false;
     }
-    auto ntScalar = std::make_shared<NTScalar>();
+
+    try {
+        // Extract value
+        auto valueField = pvStructure->getSubField<epics::pvData::PVBoolean>("value");
+        value = valueField ? valueField->get() : false;
+     } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return false;
+    }
+    return value;
+}
+
+int8_t nt_scalar_get_value_byte(std::shared_ptr<PVStructure> pvStructure) {
+    int8_t value = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int8_t(0);
+    }
+
+    try {
+        // Extract value
+        auto valueField = pvStructure->getSubField<epics::pvData::PVByte>("value");
+        value = valueField ? valueField->get() : 0;
+     } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int8_t(0);
+    }
+    return value;
+}
+
+int16_t nt_scalar_get_value_short(std::shared_ptr<PVStructure> pvStructure) {
+    int16_t value = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int16_t(0);
+    }
+
+    try {
+        // Extract value
+        auto valueField = pvStructure->getSubField<epics::pvData::PVShort>("value");
+        value = valueField ? valueField->get() : 0;
+     } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int16_t(0);
+    }
+    return value;
+}
+
+int32_t nt_scalar_get_value_int(std::shared_ptr<PVStructure> pvStructure) {
+    int32_t value = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int32_t(0);
+    }
+
+    try {
+        // Extract value
+        auto valueField = pvStructure->getSubField<epics::pvData::PVInt>("value");
+        value = valueField ? valueField->get() : 0;
+     } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int32_t(0);
+    }
+    return value;
+}
+
+int64_t nt_scalar_get_value_long(std::shared_ptr<PVStructure> pvStructure) {
+    int64_t value = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int64_t(0);
+    }
+
+    try {
+        // Extract value
+        auto valueField = pvStructure->getSubField<epics::pvData::PVLong>("value");
+        value = valueField ? valueField->get() : 0;
+     } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int64_t(0);
+    }
+    return value;
+}
+
+uint8_t nt_scalar_get_value_unsigned_byte(std::shared_ptr<PVStructure> pvStructure) {
+    uint8_t value = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return uint8_t(0);
+    }
+
+    try {
+        // Extract value
+        auto valueField = pvStructure->getSubField<epics::pvData::PVUByte>("value");
+        value = valueField ? valueField->get() : 0;
+     } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return uint8_t(0);
+    }
+    return value;
+}
+
+uint16_t nt_scalar_get_value_unsigned_short(std::shared_ptr<PVStructure> pvStructure) {
+    uint16_t value = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return uint16_t(0);
+    }
+
+    try {
+        // Extract value
+        auto valueField = pvStructure->getSubField<epics::pvData::PVUShort>("value");
+        value = valueField ? valueField->get() : 0;
+     } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return uint16_t(0);
+    }
+    return value;
+}
+
+uint32_t nt_scalar_get_value_unsigned_int(std::shared_ptr<PVStructure> pvStructure) {
+    uint32_t value = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return uint32_t(0);
+    }
+
+    try {
+        // Extract value
+        auto valueField = pvStructure->getSubField<epics::pvData::PVUInt>("value");
+        value = valueField ? valueField->get() : 0;
+     } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return uint32_t(0);
+    }
+    return value;
+}
+
+uint64_t nt_scalar_get_value_unsigned_long(std::shared_ptr<PVStructure> pvStructure) {
+    uint64_t value = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return uint64_t(0);
+    }
+
+    try {
+        // Extract value
+        auto valueField = pvStructure->getSubField<epics::pvData::PVULong>("value");
+        value = valueField ? valueField->get() : 0;
+     } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return uint64_t(0);
+    }
+    return value;
+}
+
+float nt_scalar_get_value_float(std::shared_ptr<PVStructure> pvStructure) {
+    float value = 0.0f;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return float(0.0f);
+    }
+
+    try {
+        // Extract value
+        auto valueField = pvStructure->getSubField<epics::pvData::PVFloat>("value");
+        value = valueField ? valueField->get() : 0.0f;
+     } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return float(0.0f);
+    }
+    return value;
+}
+
+double nt_scalar_get_value_double(std::shared_ptr<PVStructure> pvStructure) {
+    double value = 0.0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return double(0.0);
+    }
 
     try {
         // Extract value
         auto valueField = pvStructure->getSubField<epics::pvData::PVDouble>("value");
-        ntScalar->value = valueField ? valueField->get() : 0.0;
+        value = valueField ? valueField->get() : 0.0;
+     } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return double(0.0);
 
+    return value;
+}
+
+std::string nt_scalar_get_value_string(std::shared_ptr<PVStructure> pvStructure) {
+    std::string value = "";
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return std::string("");
+    }
+
+    try {
+        // Extract value
+        auto valueField = pvStructure->getSubField<epics::pvData::PVString>("value");
+        value = valueField ? valueField->get() : "";
+     } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return std::string("");
+    }
+    return value;
+}
+
+int8_t nt_get_value_scalar_type(std::shared_ptr<PVStructure> pvStructure) {
+    ScalarType scalarType = epics::pvData::ScalarType::UByte; // Default to unsigned byte
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return -1;
+    }
+    try {
+        // Extract value
+        auto valueField = pvStructure->getSubField<epics::pvData::PVScalar>("value");
+        if (valueField) {
+            scalarType = valueField->getScalarType();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return -1;
+    }
+    return (int8_t)scalarType;
+}
+
+int nt_scalar_get_alarm_severity(std::shared_ptr<PVStructure> pvStructure) {
+    int alarm_severity = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int(0);
+    }
+    try {
         // Extract alarm
         auto alarmField = pvStructure->getSubField<epics::pvData::PVStructure>("alarm");
-        if (alarmField)
-        {
-            ntScalar->alarm_severity = alarmField->getSubField<epics::pvData::PVInt>("severity")->get();
-            ntScalar->alarm_status = alarmField->getSubField<epics::pvData::PVInt>("status")->get();
-            ntScalar->alarm_message = strdup(alarmField->getSubField<epics::pvData::PVString>("message")->get().c_str());
+        if (alarmField) {
+            alarm_severity = alarmField->getSubField<epics::pvData::PVInt>("severity")->get();
         }
-
-        // Extract timestamp
-        auto timestampField = pvStructure->getSubField<epics::pvData::PVStructure>("timeStamp");
-        if (timestampField)
-        {
-            ntScalar->timestamp_seconds = timestampField->getSubField<epics::pvData::PVLong>("secondsPastEpoch")->get();
-            ntScalar->timestamp_nanoseconds = timestampField->getSubField<epics::pvData::PVInt>("nanoseconds")->get();
-            ntScalar->timestamp_userTag = timestampField->getSubField<epics::pvData::PVInt>("userTag")->get();
-        }
-
-        // Extract display
-        auto displayField = pvStructure->getSubField<epics::pvData::PVStructure>("display");
-        if (displayField)
-        {
-            ntScalar->display_limitLow = displayField->getSubField<epics::pvData::PVDouble>("limitLow")->get();
-            ntScalar->display_limitHigh = displayField->getSubField<epics::pvData::PVDouble>("limitHigh")->get();
-            ntScalar->display_description = strdup(displayField->getSubField<epics::pvData::PVString>("description")->get().c_str());
-            ntScalar->display_units = strdup(displayField->getSubField<epics::pvData::PVString>("units")->get().c_str());
-            ntScalar->display_precision = displayField->getSubField<epics::pvData::PVInt>("precision")->get();
-
-            auto formField = displayField->getSubField<epics::pvData::PVStructure>("form");
-            if (formField) {
-                ntScalar->display_form_index = formField->getSubField<epics::pvData::PVInt>("index")->get();
-                auto choicesField = formField->getSubField<epics::pvData::PVValueArray<std::string>>("choices");
-                auto castedChoicesField = std::dynamic_pointer_cast<const epics::pvData::PVStringArray>(choicesField);
-                if (castedChoicesField) {
-                    auto choices = extract_string_array(castedChoicesField);
-                    ntScalar->display_form_choices_count = choices.size();
-                    ntScalar->display_form_choices = new const char *[choices.size()];
-                    std::copy(choices.begin(), choices.end(), ntScalar->display_form_choices);
-                }
-            }
-        }
-
-        // Extract control
-        auto controlField = pvStructure->getSubField<epics::pvData::PVStructure>("control");
-        if (controlField)
-        {
-            ntScalar->control_limitLow = controlField->getSubField<epics::pvData::PVDouble>("limitLow")->get();
-            ntScalar->control_limitHigh = controlField->getSubField<epics::pvData::PVDouble>("limitHigh")->get();
-            ntScalar->control_minStep = controlField->getSubField<epics::pvData::PVDouble>("minStep")->get();
-        }
-
-        // Extract valueAlarm
-        auto valueAlarmField = pvStructure->getSubField<epics::pvData::PVStructure>("valueAlarm");
-        if (valueAlarmField)
-        {
-            ntScalar->valueAlarm_active = valueAlarmField->getSubField<epics::pvData::PVBoolean>("active")->get();
-            ntScalar->valueAlarm_lowAlarmLimit = valueAlarmField->getSubField<epics::pvData::PVDouble>("lowAlarmLimit")->get();
-            ntScalar->valueAlarm_lowWarningLimit = valueAlarmField->getSubField<epics::pvData::PVDouble>("lowWarningLimit")->get();
-            ntScalar->valueAlarm_highWarningLimit = valueAlarmField->getSubField<epics::pvData::PVDouble>("highWarningLimit")->get();
-            ntScalar->value_alarm_high_alarm_limit = valueAlarmField->getSubField<epics::pvData::PVDouble>("highAlarmLimit")->get();
-            ntScalar->value_alarm_low_alarm_severity = valueAlarmField->getSubField<epics::pvData::PVInt>("lowAlarmSeverity")->get();
-            ntScalar->value_alarm_low_warning_severity = valueAlarmField->getSubField<epics::pvData::PVInt>("lowWarningSeverity")->get();
-            ntScalar->value_alarm_high_warning_severity = valueAlarmField->getSubField<epics::pvData::PVInt>("highWarningSeverity")->get();
-            ntScalar->value_alarm_high_alarm_severity = valueAlarmField->getSubField<epics::pvData::PVInt>("highAlarmSeverity")->get();
-            ntScalar->value_alarm_hysteresis = valueAlarmField->getSubField<epics::pvData::PVByte>("hysteresis")->get();
-        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int(0);
     }
-    catch (std::exception &e)
-    {
+    return alarm_severity;
+}
+
+int nt_scalar_get_alarm_status(std::shared_ptr<PVStructure> pvStructure) {
+    int alarm_status = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int(0);
+    }
+    try {
+        // Extract alarm
+        auto alarmField = pvStructure->getSubField<epics::pvData::PVStructure>("alarm");
+        if (alarmField) {
+            alarm_status = alarmField->getSubField<epics::pvData::PVInt>("status")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int(0);
+    }
+    return alarm_status;
+}
+
+const char* nt_scalar_get_alarm_message(std::shared_ptr<PVStructure> pvStructure) {
+    const char* alarm_message = nullptr;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return nullptr;
+    }
+    try {
+        // Extract alarm
+        auto alarmField = pvStructure->getSubField<epics::pvData::PVStructure>("alarm");
+        if (alarmField) {
+            alarm_message = strdup(alarmField->getSubField<epics::pvData::PVString>("message")->get().c_str());
+        }
+    } catch (std::exception &e) {
         // Handle exceptions and clean up
         std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
         return nullptr;
     }
-
-    return ntScalar;
+    return alarm_message;
 }
 
-// Accessor methods for NTScalar fields
-double nt_scalar_get_value(const NTScalar& scalar) {
-    return scalar.value;
+int64_t nt_scalar_get_timestamp_seconds(std::shared_ptr<PVStructure> pvStructure) {
+    int64_t timestamp_seconds = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int64_t(0);
+    }
+    try {
+        // Extract timestamp
+        auto timestampField = pvStructure->getSubField<epics::pvData::PVStructure>("timeStamp");
+        if (timestampField) {
+            timestamp_seconds = timestampField->getSubField<epics::pvData::PVLong>("secondsPastEpoch")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int64_t(0);
+    }
+    return timestamp_seconds;
 }
 
-int nt_scalar_get_alarm_severity(const NTScalar& scalar) {
-    return scalar.alarm_severity;
+int32_t nt_scalar_get_timestamp_nanoseconds(std::shared_ptr<PVStructure> pvStructure) {
+    int32_t timestamp_nanoseconds = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int32_t(0);
+    }
+    try {
+        // Extract timestamp
+        auto timestampField = pvStructure->getSubField<epics::pvData::PVStructure>("timeStamp");
+        if (timestampField) {
+            timestamp_nanoseconds = timestampField->getSubField<epics::pvData::PVInt>("nanoseconds")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int32_t(0);
+    }
+    return timestamp_nanoseconds;
 }
 
-int nt_scalar_get_alarm_status(const NTScalar& scalar) {
-    return scalar.alarm_status;
+int32_t nt_scalar_get_timestamp_user_tag(std::shared_ptr<PVStructure> pvStructure) {
+    int32_t timestamp_user_tag = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int32_t(0);
+    }
+    try {
+        // Extract timestamp
+        auto timestampField = pvStructure->getSubField<epics::pvData::PVStructure>("timeStamp");
+        if (timestampField) {
+            timestamp_user_tag = timestampField->getSubField<epics::pvData::PVInt>("userTag")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int32_t(0);
+    }
+    return timestamp_user_tag;
 }
 
-const char* nt_scalar_get_alarm_message(const NTScalar& scalar) {
-    return scalar.alarm_message;
+double nt_scalar_get_display_limit_low(std::shared_ptr<PVStructure> pvStructure) {
+    double display_limitLow = 0.0;
+    // Retrieve the raw pointer from the shared pointer 
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return double(0.0);
+    }
+    try {
+        // Extract display
+        auto displayField = pvStructure->getSubField<epics::pvData::PVStructure>("display");
+        if (displayField) {
+            display_limitLow = displayField->getSubField<epics::pvData::PVDouble>("limitLow")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return double(0.0);
+    }
+    return display_limitLow;
 }
 
-int64_t nt_scalar_get_timestamp_seconds(const NTScalar& scalar) {
-    return scalar.timestamp_seconds;
+double nt_scalar_get_display_limit_high(std::shared_ptr<PVStructure> pvStructure) {
+    double display_limitHigh = 0.0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return double(0.0);
+    }
+    try {
+        // Extract display
+        auto displayField = pvStructure->getSubField<epics::pvData::PVStructure>("display");
+        if (displayField) {
+            display_limitHigh = displayField->getSubField<epics::pvData::PVDouble>("limitHigh")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return double(0.0);
+    }
+    return display_limitHigh;
 }
 
-int32_t nt_scalar_get_timestamp_nanoseconds(const NTScalar& scalar) {
-    return scalar.timestamp_nanoseconds;
+const char* nt_scalar_get_display_description(std::shared_ptr<PVStructure> pvStructure) {
+    const char* display_description = nullptr;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return nullptr;
+    }
+    try {
+        // Extract display
+        auto displayField = pvStructure->getSubField<epics::pvData::PVStructure>("display");
+        if (displayField) {
+            display_description = strdup(displayField->getSubField<epics::pvData::PVString>("description")->get().c_str());
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return nullptr;
+    }
+    return display_description;
 }
 
-int32_t nt_scalar_get_timestamp_user_tag(const NTScalar& scalar) {
-    return scalar.timestamp_userTag;
+const char* nt_scalar_get_display_units(std::shared_ptr<PVStructure> pvStructure) {
+    const char* display_units = nullptr;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return nullptr;
+    }
+    try {
+        // Extract display
+        auto displayField = pvStructure->getSubField<epics::pvData::PVStructure>("display");
+        if (displayField) {
+            display_units = strdup(displayField->getSubField<epics::pvData::PVString>("units")->get().c_str());
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return nullptr;
+    }
+    return display_units;
 }
 
-double nt_scalar_get_display_limit_low(const NTScalar& scalar) {
-    return scalar.display_limitLow;
+int32_t nt_scalar_get_display_precision(std::shared_ptr<PVStructure> pvStructure) {
+    int32_t display_precision = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int32_t(0);
+    }
+    try {
+        // Extract display
+        auto displayField = pvStructure->getSubField<epics::pvData::PVStructure>("display");
+        if (displayField) {
+            display_precision = displayField->getSubField<epics::pvData::PVInt>("precision")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int32_t(0);
+    }
+    return display_precision;
 }
 
-double nt_scalar_get_display_limit_high(const NTScalar& scalar) {
-    return scalar.display_limitHigh;
+int32_t nt_scalar_get_display_form_index(std::shared_ptr<PVStructure> pvStructure) {
+    int32_t display_form_index = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int32_t(0);
+    }
+    try {
+        // Extract display
+        auto displayField = pvStructure->getSubField<epics::pvData::PVStructure>("display");
+        if (displayField) {
+            auto formField = displayField->getSubField<epics::pvData::PVStructure>("form");
+            if (formField) {
+                display_form_index = formField->getSubField<epics::pvData::PVInt>("index")->get();
+            }
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int32_t(0);
+    }
+    return display_form_index;
 }
 
-const char* nt_scalar_get_display_description(const NTScalar& scalar) {
-    return scalar.display_description;
+const char* const* nt_scalar_get_display_form_choices(std::shared_ptr<PVStructure> pvStructure) {
+    const char* const* display_form_choices = nullptr;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return nullptr;
+    }
+    try {
+        // Extract display
+        auto displayField = pvStructure->getSubField<epics::pvData::PVStructure>("display");
+        if (displayField) {
+            auto formField = displayField->getSubField<epics::pvData::PVStructure>("form");
+            if (formField) {
+                auto choicesField = formField->getSubField<epics::pvData::PVValueArray<std::string>>("choices");
+                auto castedChoicesField = std::dynamic_pointer_cast<const epics::pvData::PVStringArray>(choicesField);
+                if (castedChoicesField) {
+                    display_form_choices = extract_string_array(castedChoicesField).data();
+                }
+            }
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return nullptr;
+    }
+    return display_form_choices;
 }
 
-const char* nt_scalar_get_display_units(const NTScalar& scalar) {
-    return scalar.display_units;
+size_t nt_scalar_get_display_form_choices_count(std::shared_ptr<PVStructure> pvStructure) {
+    size_t display_form_choices_count = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return size_t(0);
+    }
+    try {
+        // Extract display
+        auto displayField = pvStructure->getSubField<epics::pvData::PVStructure>("display");
+        if (displayField) {
+            auto formField = displayField->getSubField<epics::pvData::PVStructure>("form");
+            if (formField) {
+                auto choicesField = formField->getSubField<epics::pvData::PVValueArray<std::string>>("choices");
+                auto castedChoicesField = std::dynamic_pointer_cast<const epics::pvData::PVStringArray>(choicesField);
+                if (castedChoicesField) {
+                    display_form_choices_count = castedChoicesField->getLength();
+                }
+            }
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return size_t(0);
+    }
+    return display_form_choices_count;
 }
 
-int32_t nt_scalar_get_display_precision(const NTScalar& scalar) {
-    return scalar.display_precision;
+double nt_scalar_get_control_limit_low(std::shared_ptr<PVStructure> pvStructure) {
+    double control_limitLow = 0.0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return double(0.0);
+    }
+    try {
+        // Extract control
+        auto controlField = pvStructure->getSubField<epics::pvData::PVStructure>("control");
+        if (controlField) {
+            control_limitLow = controlField->getSubField<epics::pvData::PVDouble>("limitLow")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return double(0.0);
+    }
+    return control_limitLow;
 }
 
-int32_t nt_scalar_get_display_form_index(const NTScalar& scalar) {
-    return scalar.display_form_index;
+double nt_scalar_get_control_limit_high(std::shared_ptr<PVStructure> pvStructure) {
+    double control_limitHigh = 0.0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return double(0.0);
+    }
+    try {
+        // Extract control
+        auto controlField = pvStructure->getSubField<epics::pvData::PVStructure>("control");
+        if (controlField) {
+            control_limitHigh = controlField->getSubField<epics::pvData::PVDouble>("limitHigh")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return double(0.0);
+    }
+    return control_limitHigh;
 }
 
-const char* const* nt_scalar_get_display_form_choices(const NTScalar& scalar) {
-    return scalar.display_form_choices;
+double nt_scalar_get_control_min_step(std::shared_ptr<PVStructure> pvStructure) {
+    double control_minStep = 0.0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return double(0.0);
+    }
+    try {
+        // Extract control
+        auto controlField = pvStructure->getSubField<epics::pvData::PVStructure>("control");
+        if (controlField) {
+            control_minStep = controlField->getSubField<epics::pvData::PVDouble>("minStep")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return double(0.0);
+    }
+    return control_minStep;
 }
 
-size_t nt_scalar_get_display_form_choices_count(const NTScalar& scalar) {
-    return scalar.display_form_choices_count;
+bool nt_scalar_get_value_alarm_active(std::shared_ptr<PVStructure> pvStructure) {
+    bool valueAlarm_active = false;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return false;
+    }
+    try {
+        // Extract valueAlarm
+        auto valueAlarmField = pvStructure->getSubField<epics::pvData::PVStructure>("valueAlarm");
+        if (valueAlarmField) {
+            valueAlarm_active = valueAlarmField->getSubField<epics::pvData::PVBoolean>("active")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return false;
+    }
+    return valueAlarm_active;
 }
 
-double nt_scalar_get_control_limit_low(const NTScalar& scalar) {
-    return scalar.control_limitLow;
+double nt_scalar_get_value_alarm_low_alarm_limit(std::shared_ptr<PVStructure> pvStructure) {
+    double valueAlarm_lowAlarmLimit = 0.0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return double(0.0);
+    }
+    try {
+        // Extract valueAlarm
+        auto valueAlarmField = pvStructure->getSubField<epics::pvData::PVStructure>("valueAlarm");
+        if (valueAlarmField) {
+            valueAlarm_lowAlarmLimit = valueAlarmField->getSubField<epics::pvData::PVDouble>("lowAlarmLimit")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return double(0.0);
+    }
+    return valueAlarm_lowAlarmLimit;
 }
 
-double nt_scalar_get_control_limit_high(const NTScalar& scalar) {
-    return scalar.control_limitHigh;
+double nt_scalar_get_value_alarm_low_warning_limit(std::shared_ptr<PVStructure> pvStructure) {
+    double valueAlarm_lowWarningLimit = 0.0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return double(0.0);
+    }
+    try {
+        // Extract valueAlarm
+        auto valueAlarmField = pvStructure->getSubField<epics::pvData::PVStructure>("valueAlarm");
+        if (valueAlarmField) {
+            valueAlarm_lowWarningLimit = valueAlarmField->getSubField<epics::pvData::PVDouble>("lowWarningLimit")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return double(0.0);
+    }
+    return valueAlarm_lowWarningLimit;
 }
 
-double nt_scalar_get_control_min_step(const NTScalar& scalar) {
-    return scalar.control_minStep;
+double nt_scalar_get_value_alarm_high_warning_limit(std::shared_ptr<PVStructure> pvStructure) {
+    double valueAlarm_highWarningLimit = 0.0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return double(0.0);
+    }
+    try {
+        // Extract valueAlarm
+        auto valueAlarmField = pvStructure->getSubField<epics::pvData::PVStructure>("valueAlarm");
+        if (valueAlarmField) {
+            valueAlarm_highWarningLimit = valueAlarmField->getSubField<epics::pvData::PVDouble>("highWarningLimit")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return double(0.0);
+    }
+    return valueAlarm_highWarningLimit;
 }
 
-bool nt_scalar_get_value_alarm_active(const NTScalar& scalar) {
-    return scalar.valueAlarm_active;
+double nt_scalar_get_value_alarm_high_alarm_limit(std::shared_ptr<PVStructure> pvStructure) {
+    double valueAlarm_highAlarmLimit = 0.0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return double(0.0);
+    }
+    try {
+        // Extract valueAlarm
+        auto valueAlarmField = pvStructure->getSubField<epics::pvData::PVStructure>("valueAlarm");
+        if (valueAlarmField) {
+            valueAlarm_highAlarmLimit = valueAlarmField->getSubField<epics::pvData::PVDouble>("highAlarmLimit")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return double(0.0);
+    }
+    return valueAlarm_highAlarmLimit;
 }
 
-double nt_scalar_get_value_alarm_low_alarm_limit(const NTScalar& scalar) {
-    return scalar.valueAlarm_lowAlarmLimit;
+int32_t nt_scalar_get_value_alarm_low_alarm_severity(std::shared_ptr<PVStructure> pvStructure) {
+    int32_t valueAlarm_low_alarm_severity = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int32_t(0);
+    }
+    try {
+        // Extract valueAlarm
+        auto valueAlarmField = pvStructure->getSubField<epics::pvData::PVStructure>("valueAlarm");
+        if (valueAlarmField) {
+            valueAlarm_low_alarm_severity = valueAlarmField->getSubField<epics::pvData::PVInt>("lowAlarmSeverity")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int32_t(0);
+    }
 }
 
-double nt_scalar_get_value_alarm_low_warning_limit(const NTScalar& scalar) {
-    return scalar.valueAlarm_lowWarningLimit;
+int32_t nt_scalar_get_value_alarm_low_warning_severity(std::shared_ptr<PVStructure> pvStructure) {
+    int32_t valueAlarm_low_warning_severity = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int32_t(0);
+    }
+    try {
+        // Extract valueAlarm
+        auto valueAlarmField = pvStructure->getSubField<epics::pvData::PVStructure>("valueAlarm");
+        if (valueAlarmField) {
+            valueAlarm_low_warning_severity = valueAlarmField->getSubField<epics::pvData::PVInt>("lowWarningSeverity")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int32_t(0);
+    }
+    return valueAlarm_low_warning_severity;
 }
 
-double nt_scalar_get_value_alarm_high_warning_limit(const NTScalar& scalar) {
-    return scalar.valueAlarm_highWarningLimit;
+int32_t nt_scalar_get_value_alarm_high_warning_severity(std::shared_ptr<PVStructure> pvStructure) {
+    int32_t valueAlarm_high_warning_severity = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int32_t(0);
+    }
+    try {
+        // Extract valueAlarm
+        auto valueAlarmField = pvStructure->getSubField<epics::pvData::PVStructure>("valueAlarm");
+        if (valueAlarmField) {
+            valueAlarm_high_warning_severity = valueAlarmField->getSubField<epics::pvData::PVInt>("highWarningSeverity")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int32_t(0);
+    }
+    return valueAlarm_high_warning_severity;
 }
 
-double nt_scalar_get_value_alarm_high_alarm_limit(const NTScalar& scalar) {
-    return scalar.value_alarm_high_alarm_limit;
+int32_t nt_scalar_get_value_alarm_high_alarm_severity(std::shared_ptr<PVStructure> pvStructure) {
+    int32_t valueAlarm_high_alarm_severity = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int32_t(0);
+    }
+    try {
+        // Extract valueAlarm
+        auto valueAlarmField = pvStructure->getSubField<epics::pvData::PVStructure>("valueAlarm");
+        if (valueAlarmField) {
+            valueAlarm_high_alarm_severity = valueAlarmField->getSubField<epics::pvData::PVInt>("highAlarmSeverity")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int32_t(0);
+    }
+    return valueAlarm_high_alarm_severity;
 }
 
-int32_t nt_scalar_get_value_alarm_low_alarm_severity(const NTScalar& scalar) {
-    return scalar.value_alarm_low_alarm_severity;
-}
-
-int32_t nt_scalar_get_value_alarm_low_warning_severity(const NTScalar& scalar) {
-    return scalar.value_alarm_low_warning_severity;
-}
-
-int32_t nt_scalar_get_value_alarm_high_warning_severity(const NTScalar& scalar) {
-    return scalar.value_alarm_high_warning_severity;
-}
-
-int32_t nt_scalar_get_value_alarm_high_alarm_severity(const NTScalar& scalar) {
-    return scalar.value_alarm_high_alarm_severity;
-}
-
-int8_t nt_scalar_get_value_alarm_hysteresis(const NTScalar& scalar) {
-    return scalar.value_alarm_hysteresis;
+int8_t nt_scalar_get_value_alarm_hysteresis(std::shared_ptr<PVStructure> pvStructure) {
+    int8_t valueAlarm_hysteresis = 0;
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return int8_t(0);
+    }
+    try {
+        // Extract valueAlarm
+        auto valueAlarmField = pvStructure->getSubField<epics::pvData::PVStructure>("valueAlarm");
+        if (valueAlarmField) {
+            valueAlarm_hysteresis = valueAlarmField->getSubField<epics::pvData::PVByte>("hysteresis")->get();
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return int8_t(0);
+    }
+    return valueAlarm_hysteresis;
 }
