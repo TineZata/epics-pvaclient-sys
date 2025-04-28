@@ -1,4 +1,4 @@
-use epics_pvaclient_sys::NTScalar;
+
 
 #[test]
 fn test_valid_client_provider() {
@@ -23,7 +23,15 @@ fn test_get_pv_does_not_timeout() {
 #[test]
 fn test_get_pv_as_struct_does_not_timeout() {
     let pv_name = "TEST:PV1";
-    let value: Option<RustPVStructure> = epics_pvaclient_sys::get_pv_fields_as_struct(&pv_name);
-    
-    assert!(value.is_some(), "Failed to get PV fields as struct for {}", pv_name);
+    let pv_option= epics_pvaclient_sys::get_pv_fields_as_struct(&pv_name);
+    assert!(pv_option.is_some(), "Failed to get PV fields as struct for {}", pv_name);
+    if let Some(pv) = pv_option {        
+        let value_as_double = match pv.value {
+            epics_pvaclient_sys::NTScalarValue::Double(val) => val,
+            _ => panic!("Failed to convert NTScalarValue to f64: unexpected variant"),
+        };
+        assert_eq!(value_as_double, 87654.321, "Unexpected value for PV {}", pv_name);
+        assert_eq!(pv.display_precision, 3, "Unexpected display precision for PV {}", pv_name);
+        assert_eq!(pv.display_units, "um", "Unexpected units for PV {}", pv_name);
+    }
 }

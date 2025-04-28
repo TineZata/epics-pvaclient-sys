@@ -69,10 +69,10 @@ mod ffi {
         fn nt_scalar_get_value_short(pvdata: SharedPtr<PVStructure>) -> i16;
         fn nt_scalar_get_value_int(pvdata: SharedPtr<PVStructure>) -> i32;
         fn nt_scalar_get_value_long(pvdata: SharedPtr<PVStructure>) -> i64;
-        fn nt_scalar_get_value_ubyte(pvdata: SharedPtr<PVStructure>) -> u8;
-        fn nt_scalar_get_value_ushort(pvdata: SharedPtr<PVStructure>) -> u16;
-        fn nt_scalar_get_value_uint(pvdata: SharedPtr<PVStructure>) -> u32;
-        fn nt_scalar_get_value_ulong(pvdata: SharedPtr<PVStructure>) -> u64;
+        fn nt_scalar_get_value_unsigned_byte(pvdata: SharedPtr<PVStructure>) -> u8;
+        fn nt_scalar_get_value_unsigned_short(pvdata: SharedPtr<PVStructure>) -> u16;
+        fn nt_scalar_get_value_unsigned_int(pvdata: SharedPtr<PVStructure>) -> u32;
+        fn nt_scalar_get_value_unsigned_long(pvdata: SharedPtr<PVStructure>) -> u64;
         fn nt_scalar_get_value_float(pvdata: SharedPtr<PVStructure>) -> f32;
         fn nt_scalar_get_value_double(pvdata: SharedPtr<PVStructure>) -> f64;
         fn nt_scalar_get_value_string(pvdata: SharedPtr<PVStructure>) -> *const c_char;
@@ -152,7 +152,7 @@ pub fn get_pv_fields_as_struct(name: &str) -> Option<PVStructure> {
     if pv_struct_ptr.is_null() {
         return None; // Return None if the pointer is null
     }
-
+    
     Some(PVStructure {
         value: {
             let value_type = ffi::nt_scalar_get_value_type(pv_struct_ptr.clone());
@@ -162,10 +162,10 @@ pub fn get_pv_fields_as_struct(name: &str) -> Option<PVStructure> {
                 2 => NTScalarValue::Short(ffi::nt_scalar_get_value_short(pv_struct_ptr.clone())),
                 3 => NTScalarValue::Int(ffi::nt_scalar_get_value_int(pv_struct_ptr.clone())),
                 4 => NTScalarValue::Long(ffi::nt_scalar_get_value_long(pv_struct_ptr.clone())),
-                5 => NTScalarValue::UByte(ffi::nt_scalar_get_value_ubyte(pv_struct_ptr.clone())),
-                6 => NTScalarValue::UShort(ffi::nt_scalar_get_value_ushort(pv_struct_ptr.clone())),
-                7 => NTScalarValue::UInt(ffi::nt_scalar_get_value_uint(pv_struct_ptr.clone())),
-                8 => NTScalarValue::ULong(ffi::nt_scalar_get_value_ulong(pv_struct_ptr.clone())),
+                5 => NTScalarValue::UByte(ffi::nt_scalar_get_value_unsigned_byte(pv_struct_ptr.clone())),
+                6 => NTScalarValue::UShort(ffi::nt_scalar_get_value_unsigned_short(pv_struct_ptr.clone())),
+                7 => NTScalarValue::UInt(ffi::nt_scalar_get_value_unsigned_int(pv_struct_ptr.clone())),
+                8 => NTScalarValue::ULong(ffi::nt_scalar_get_value_unsigned_long(pv_struct_ptr.clone())),
                 9 => NTScalarValue::Float(ffi::nt_scalar_get_value_float(pv_struct_ptr.clone())),
                 10 => NTScalarValue::Double(ffi::nt_scalar_get_value_double(pv_struct_ptr.clone())),
                 11 => {

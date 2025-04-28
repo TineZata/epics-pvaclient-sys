@@ -1,8 +1,9 @@
 record(ao, "TEST:PV1") {
     field(DESC, "Output test PV 1")
     field(DTYP, "Soft Channel")
-    field(VAL, "1.23")
-    field(PREC, "2")
+    field(VAL, "87654.321")
+    field(EGU, "um")
+    field(PREC, "3")
     info(group, "TEST:GROUP1")
 }
 
