@@ -1,2 +1,3 @@
 # epics-pvaclient-sys
-EPICS PV Access Client Wrapper
+EPICS PV Access Client rust wrapper.
+
