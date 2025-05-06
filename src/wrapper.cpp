@@ -1,17 +1,9 @@
 #include "wrapper.h"
 #include <sstream>
 
-
-std::shared_ptr<ClientProvider> rust_client_provider = nullptr;  // Initialize the global variable
-std::shared_ptr<ClientChannel> rust_client_channel = nullptr;  // Initialize the global variable
-
 std::shared_ptr<ClientProvider> get_client_provider() {
-    try {
-        
-        if (!rust_client_provider) {
-            rust_client_provider = std::make_shared<ClientProvider>("pva");
-        }
-        return rust_client_provider;
+    try { 
+        return std::make_shared<ClientProvider>("pva");
     } catch (const std::exception& e) {
         std::cerr << "Error creating ClientConfig: " << e.what() << std::endl;
         return nullptr;
@@ -21,13 +13,10 @@ std::shared_ptr<ClientProvider> get_client_provider() {
 
 std::shared_ptr<ClientChannel> get_client_channel(rust::Str name) {
     try {
-        if (!rust_client_provider) {
-            rust_client_provider = get_client_provider();
-        }
+        std::shared_ptr<ClientProvider> cp = get_client_provider();
         std::string name_str(name);  // Convert Rust `&str` to C++ `std::string`
-        auto channel = std::make_shared<ClientChannel>(rust_client_provider->connect(name_str));
-        rust_client_channel = channel;
-        return rust_client_channel;  
+        auto channel = std::make_shared<ClientChannel>(cp->connect(name_str));
+        return channel;  
     } catch (const std::exception& e) {
         std::cerr << "Error creating ClientChannel: " << e.what() << std::endl;
         return nullptr;
@@ -37,19 +26,13 @@ std::shared_ptr<ClientChannel> get_client_channel(rust::Str name) {
 rust::String get_pv_value_fields_as_string(rust::Str name) {
     try {
         std::string name_str(name);  // Convert Rust string to std::string
-
-        /*pvac::ClientProvider provider("pva");
-        pvac::ClientChannel channel(provider.connect(name_str));*/
-        if (!rust_client_provider) {
-            rust_client_provider = get_client_provider();
+        std::shared_ptr<ClientChannel> channel = get_client_channel(name_str); 
+        if (!channel) {
+            std::cerr << "ClientChannel is not initialized " << name << std::endl;
+            return rust::String("Error: ClientChannel is not initialized.");
         }
-        if (!rust_client_channel) {
-            rust_client_channel = get_client_channel(name_str);  // Use the global variable
-        }
-        
         std::ostringstream result;
-        result << rust_client_channel->name() << " : " << rust_client_channel->get();
-
+        result << channel->name() << " : " << channel->get(3.0, nullptr);
         return rust::String(result.str());  // Convert std::string to rust::String
     } catch (const std::exception& e) {
         std::string error_msg = "Error: " + std::string(e.what());  // Concatenate using std::string

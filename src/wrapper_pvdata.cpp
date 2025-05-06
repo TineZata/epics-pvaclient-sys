@@ -15,15 +15,10 @@ std::vector<const char *> extract_string_array(const std::shared_ptr<const epics
 
 std::shared_ptr<PVStructure> get_pv_value_fields_as_struct(rust::Str name) {
     std::string name_str(name);  // Convert Rust `&str` to C++ `std::string`
-    if (!rust_client_provider) {
-        rust_client_provider = get_client_provider(); // Assuming this function initializes the provider
-    }
-    if (!rust_client_channel) {
-        rust_client_channel = get_client_channel(name_str); // Assuming this function initializes the channel
-    }
+    std::shared_ptr<ClientChannel> channel = get_client_channel(name_str); // Assuming this function initializes the channel
 
-    // Check if the global channel is initialized
-    if (!rust_client_channel) {
+    // Check if the channel is initialized
+    if (!channel) {
         std::cerr << "ClientChannel is not initialized." << std::endl;
         return nullptr;
     }
@@ -31,13 +26,13 @@ std::shared_ptr<PVStructure> get_pv_value_fields_as_struct(rust::Str name) {
     // Retrieve the shared pointer from rust_client_channel
     std::shared_ptr<const PVStructure> pvStructureSharedPtr;
     try {
-        pvStructureSharedPtr = rust_client_channel->get(3.0, nullptr);
+        pvStructureSharedPtr = channel->get();
     } catch (const std::exception &e) {
-        std::cerr << "Error getting : " << name_str << e.what() << std::endl;
+        std::cerr << "Error getting : channel->get() " << name_str << " " << e.what() << std::endl;
         return nullptr;
     }
     if (!pvStructureSharedPtr) {
-        std::cerr << "Error: rust_client_channel->get() returned nullptr." << std::endl;
+        std::cerr << "Error: channel->get() returned nullptr." << std::endl;
         return nullptr;
     }
     return std::const_pointer_cast<PVStructure>(pvStructureSharedPtr);

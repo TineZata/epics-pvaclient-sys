@@ -140,11 +140,11 @@ pub fn get_client_channel(name: &str) -> SharedPtr<ffi::ClientChannel> {
 /// let value = epics_pvaclient_sys::get_pv_fields_as_string(&pv_name);
 /// assert_ne!(value, "Error: Timeout");
 /// ```
-pub fn get_pv_fields_as_string(name: &str) -> String {
+pub fn get_pv_all_fields_as_string(name: &str) -> String {
     ffi::get_pv_value_fields_as_string(name)
 }
 
-pub fn get_pv_fields_as_struct(name: &str) -> Option<PVStructure> {
+pub fn get_pv_all_fields_as_struct(name: &str) -> Option<PVStructure> {
     // Convert the shared pointer to NTScalar to a raw pointer
     let pv_struct_ptr = ffi::get_pv_value_fields_as_struct(name);
     
