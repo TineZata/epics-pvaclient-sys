@@ -11,9 +11,9 @@ using ClientChannel = pvac::ClientChannel;
 using PVStructure = epics::pvData::PVStructure;
 
 // Global map to store ClientProvider instances
-extern std::shared_ptr<ClientProvider> rust_client_provider; 
-// Global map to store ClientChannel instances
-extern std::shared_ptr<ClientChannel> rust_client_channel; 
+extern std::shared_ptr<ClientProvider> client_provider; 
+// List of all ClientChannel instances
+extern std::vector<std::shared_ptr<ClientChannel>> client_channels;
 
 // Function to create a ClientProvider
 std::shared_ptr<ClientProvider> get_client_provider();
