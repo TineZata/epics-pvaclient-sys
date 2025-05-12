@@ -1,5 +1,39 @@
 use cxx::SharedPtr;
 
+pub enum NTTypes {
+    NTScalarBoolean = 0x00,
+    NTScalarByte = 0x01,
+    NTScalarShort = 0x02,
+    NTScalarInt = 0x03,
+    NTScalarLong = 0x04,
+    NTScalarpvUByte = 0x05,
+    NTScalarpvUShort = 0x06,
+    NTScalarpvUInt = 0x07,
+    NTScalarpvULong = 0x08,
+    NTScalarFloat = 0x09,
+    NTScalarDouble = 0x0A,
+    NTScalarString = 0x0B,
+
+    NTScalarArrayBoolean = 0x10,
+    NTScalarArrayByte = 0x11,
+    NTScalarArrayShort = 0x12,
+    NTScalarArrayInt = 0x13,
+    NTScalarArrayLong = 0x14,
+    NTScalarArraypvUByte = 0x15,
+    NTScalarArraypvUShort = 0x16,
+    NTScalarArraypvUInt = 0x17,
+    NTScalarArraypvULong = 0x18,
+    NTScalarArrayFloat = 0x19,
+    NTScalarArrayDouble = 0x1A,
+    NTScalarArrayString = 0x1B,
+
+    NTEnum = 0x20,
+    NTEnumArray = 0x21,
+
+    NTUnion = 0x30,
+    NTUnionArray = 0x31,
+}
+
 pub enum NTScalarValue {
     Boolean(bool),
     Byte(i8),
@@ -76,7 +110,7 @@ mod ffi {
         fn nt_scalar_get_value_float(pvdata: SharedPtr<PVStructure>) -> f32;
         fn nt_scalar_get_value_double(pvdata: SharedPtr<PVStructure>) -> f64;
         fn nt_scalar_get_value_string(pvdata: SharedPtr<PVStructure>) -> *const c_char;
-        fn nt_scalar_get_value_type(pvdata: SharedPtr<PVStructure>) -> i8;
+        fn nt_scalar_get_value_type(pvdata: SharedPtr<PVStructure>) -> NTTypes;
 
         fn nt_scalar_get_alarm_severity(pvdata: SharedPtr<PVStructure>) -> i32;
         fn nt_scalar_get_alarm_status(pvdata: SharedPtr<PVStructure>) -> i32;
@@ -140,11 +174,11 @@ pub fn get_client_channel(name: &str) -> SharedPtr<ffi::ClientChannel> {
 /// let value = epics_pvaclient_sys::get_pv_fields_as_string(&pv_name);
 /// assert_ne!(value, "Error: Timeout");
 /// ```
-pub fn get_pv_all_fields_as_string(name: &str) -> String {
+pub fn pvget_all_fields_as_string(name: &str) -> String {
     ffi::get_pv_value_fields_as_string(name)
 }
 
-pub fn get_pv_all_fields_as_struct(name: &str) -> Option<PVStructure> {
+pub fn pvget_all_fields_as_nt_scalar(name: &str) -> Option<PVStructure> {
     // Convert the shared pointer to NTScalar to a raw pointer
     let pv_struct_ptr = ffi::get_pv_value_fields_as_struct(name);
     

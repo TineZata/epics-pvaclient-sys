@@ -9,6 +9,7 @@
 using ClientProvider = pvac::ClientProvider;
 using ClientChannel = pvac::ClientChannel;
 using PVStructure = epics::pvData::PVStructure;
+using PVField = epics::pvData::PVField;
 
 // Global map to store ClientProvider instances
 extern std::shared_ptr<ClientProvider> client_provider; 
@@ -24,24 +25,44 @@ std::shared_ptr<ClientChannel> get_client_channel(rust::Str name);
 // Function to get all PV value fields as a string
 rust::String get_pv_value_fields_as_string(rust::Str name);
 
-// Enum for scalar types
-enum ScalarType {
-    pvBoolean,
-    pvByte,
-    pvShort,
-    pvInt,
-    pvLong,
-    pvUByte,
-    pvUShort,
-    pvUInt,
-    pvULong,
-    pvFloat,
-    pvDouble,
-    pvString,
+// Enum for all Normative Types.
+enum NTTypes {
+    NTScalarBoolean = 0x00,
+    NTScalarByte = 0x01,
+    NTScalarShort = 0x02,
+    NTScalarInt = 0x03,
+    NTScalarLong = 0x04,
+    NTScalarpvUByte = 0x05,
+    NTScalarpvUShort = 0x06,
+    NTScalarpvUInt = 0x07,
+    NTScalarpvULong = 0x08,
+    NTScalarFloat = 0x09,
+    NTScalarDouble = 0x0A,
+    NTScalarString = 0x0B,
+
+    NTScalarArrayBoolean = 0x10,
+    NTScalarArrayByte = 0x11,
+    NTScalarArrayShort = 0x12,
+    NTScalarArrayInt = 0x13,
+    NTScalarArrayLong = 0x14,
+    NTScalarArraypvUByte = 0x15,
+    NTScalarArraypvUShort = 0x16,
+    NTScalarArraypvUInt = 0x17,
+    NTScalarArraypvULong = 0x18,
+    NTScalarArrayFloat = 0x19,
+    NTScalarArrayDouble = 0x1A,
+    NTScalarArrayString = 0x1B,
+
+    NTEnum = 0x20,
+    NTEnumArray = 0x21,
+
+    NTUnion = 0x30,
+    NTUnionArray = 0x31,
 };
 
 
 std::shared_ptr<PVStructure> get_pv_value_fields_as_struct(rust::Str name);
+NTTypes nt_scalar_get_value_type(std::shared_ptr<PVStructure> pvStructureSharedPtr);
 
 extern "C" {
     bool nt_scalar_get_value_boolean(std::shared_ptr<PVStructure> pvStructureSharedPtr);
@@ -85,6 +106,6 @@ extern "C" {
     int32_t nt_scalar_get_value_alarm_high_alarm_severity(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     int8_t nt_scalar_get_value_alarm_hysteresis(std::shared_ptr<PVStructure> pvStructureSharedPtr);
 
-    int8_t nt_scalar_get_value_type(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    
 }
 

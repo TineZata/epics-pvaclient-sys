@@ -860,18 +860,36 @@ int8_t nt_scalar_get_value_alarm_hysteresis(std::shared_ptr<PVStructure> pvStruc
     return valueAlarm_hysteresis;
 }
 
-int8_t nt_scalar_get_value_type(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
+NTTypes nt_scalar_get_value_type(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
     // Retrieve the raw pointer from the shared pointer
     const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
     if (!pvStructure) {
         return -1;
     }
     try {
-        // Extract value
-        auto valueField = pvStructure->getSubField<epics::pvData::PVScalar>("value");
-        if (valueField) {
-            return (int8_t)valueField->getScalar()->getScalarType();
+        auto pvField = pvStructure->getSubField<epics::pvData::PVField>("value");
+        if (!pvField) {
+            return -1;
         }
+
+        switch (pvField->getField()->getType()) {
+        case epics::pvData::scalarType:
+            return (NTTypes)pvField->getScalar()->getScalarType();
+        case epics::pvData::scalarArrayType:
+            // bit shift the scalar type to get the array type
+            return (NTTypes) (0x10 + (uint8_t)pvField->getScalarArray()->getElementType();
+        case epics::pvData::structureType:
+            return NTTypes::NTEnum;
+        case epics::pvData::structureArrayType:
+            return NTTypes::NTEnumArray;
+        case epics::pvData::unionType:  
+            return NTTypes::NTUnion;
+        case epics::pvData::unionArrayType:
+            return NTTypes::NTUnionArray;
+        default:
+            return -1;
+        }
+
     } catch (std::exception &e) {
         // Handle exceptions and clean up
         std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
