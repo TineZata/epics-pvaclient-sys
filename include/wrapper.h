@@ -9,7 +9,7 @@
 using ClientProvider = pvac::ClientProvider;
 using ClientChannel = pvac::ClientChannel;
 using PVStructure = epics::pvData::PVStructure;
-using PVField = epics::pvData::PVField;
+using PVDataType = epics::epics::pvData::Type;
 
 // Global map to store ClientProvider instances
 extern std::shared_ptr<ClientProvider> client_provider; 
@@ -62,7 +62,7 @@ enum NTTypes {
 
 
 std::shared_ptr<PVStructure> get_pv_value_fields_as_struct(rust::Str name);
-NTTypes nt_scalar_get_value_type(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+std::shared_ptr<PVDataType> get_pv_field_data_type(std::shared_ptr<PVStructure> pvStructureSharedPtr);
 
 extern "C" {
     bool nt_scalar_get_value_boolean(std::shared_ptr<PVStructure> pvStructureSharedPtr);

@@ -1,5 +1,31 @@
 use cxx::SharedPtr;
 
+
+pub enum Type {
+    Scalar,
+    ScalarArray,
+    Structure,
+    StructureArray,
+    Union,
+    UnionArray
+}
+
+pub enum ScalarType {
+    PvBoolean,
+    PvByte,
+    PvShort,
+    PvInt,
+    PvLong,
+    PvUbyte,
+    PvUshort,
+    PvUint,
+    PvUlong,
+    PvFloat,
+    PvDouble,
+    PvString
+}
+
+
 pub enum NTTypes {
     NTScalarBoolean = 0x00,
     NTScalarByte = 0x01,
@@ -90,6 +116,7 @@ mod ffi {
         type ClientProvider;
         type ClientChannel;
         type PVStructure;
+        type ScalarType;
 
         // Declare functions that return shared pointers to C++ classes
         fn get_client_provider() -> SharedPtr<ClientProvider>;
@@ -98,6 +125,7 @@ mod ffi {
         fn get_pv_value_fields_as_struct(name: &str) -> SharedPtr<PVStructure>;
 
         // Declare accessor methods for NTScalar
+        fn nt_scalar_get_value_type(pvdata: SharedPtr<PVStructure>) -> SharedPtr<ScalarType>;
         fn nt_scalar_get_value_boolean(pvdata: SharedPtr<PVStructure>) -> bool;
         fn nt_scalar_get_value_byte(pvdata: SharedPtr<PVStructure>) -> i8;
         fn nt_scalar_get_value_short(pvdata: SharedPtr<PVStructure>) -> i16;
@@ -110,8 +138,7 @@ mod ffi {
         fn nt_scalar_get_value_float(pvdata: SharedPtr<PVStructure>) -> f32;
         fn nt_scalar_get_value_double(pvdata: SharedPtr<PVStructure>) -> f64;
         fn nt_scalar_get_value_string(pvdata: SharedPtr<PVStructure>) -> *const c_char;
-        fn nt_scalar_get_value_type(pvdata: SharedPtr<PVStructure>) -> NTTypes;
-
+        
         fn nt_scalar_get_alarm_severity(pvdata: SharedPtr<PVStructure>) -> i32;
         fn nt_scalar_get_alarm_status(pvdata: SharedPtr<PVStructure>) -> i32;
         fn nt_scalar_get_alarm_message(pvdata: SharedPtr<PVStructure>) -> *const c_char;
@@ -189,7 +216,9 @@ pub fn pvget_all_fields_as_nt_scalar(name: &str) -> Option<PVStructure> {
     
     Some(PVStructure {
         value: {
-            let value_type = ffi::nt_scalar_get_value_type(pv_struct_ptr.clone());
+            let value_type_ptr: SharedPtr<ffi::ScalarType> = ffi::nt_scalar_get_value_type(pv_struct_ptr.clone());
+            let value_type = value_type_ptr.as_ref().unwrap() as *const ffi::ScalarType as usize;
+
             match value_type {
                 0 => NTScalarValue::Boolean(ffi::nt_scalar_get_value_boolean(pv_struct_ptr.clone())),
                 1 => NTScalarValue::Byte(ffi::nt_scalar_get_value_byte(pv_struct_ptr.clone())),
@@ -277,3 +306,4 @@ pub fn pvget_all_fields_as_nt_scalar(name: &str) -> Option<PVStructure> {
         value_alarm_hysteresis: ffi::nt_scalar_get_value_alarm_hysteresis(pv_struct_ptr.clone()),
     })
 }
+
