@@ -1,28 +1,68 @@
 use cxx::SharedPtr;
 
-
-pub enum Type {
-    Scalar,
-    ScalarArray,
-    Structure,
-    StructureArray,
-    Union,
-    UnionArray
+#[repr(i8)]
+pub enum EpicsDataType {
+    Scalar = 0,
+    ScalarArray = 1,
+    Structure = 2,
+    StructureArray = 3,
+    Union = 4,
+    UnionArray = 5,
 }
 
-pub enum ScalarType {
-    PvBoolean,
-    PvByte,
-    PvShort,
-    PvInt,
-    PvLong,
-    PvUbyte,
-    PvUshort,
-    PvUint,
-    PvUlong,
-    PvFloat,
-    PvDouble,
-    PvString
+impl TryFrom<i8> for EpicsDataType {
+    type Error = ();
+
+    fn try_from(value: i8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(EpicsDataType::Scalar),
+            1 => Ok(EpicsDataType::ScalarArray),
+            2 => Ok(EpicsDataType::Structure),
+            3 => Ok(EpicsDataType::StructureArray),
+            4 => Ok(EpicsDataType::Union),
+            5 => Ok(EpicsDataType::UnionArray),
+            _ => Err(()),
+        }
+    }
+}
+
+#[repr(i8)]
+pub enum EpicsScalarType {
+    PvBoolean = 0,
+    PvByte = 1,
+    PvShort = 2,
+    PvInt = 3,
+    PvLong = 4,
+    PvUbyte = 5,
+    PvUshort = 6,
+    PvUint = 7,
+    PvUlong = 8,
+    PvFloat = 9,
+    PvDouble = 10,
+    PvString = 11,
+}
+
+impl TryFrom<i8> for EpicsScalarType {
+    type Error = ();
+
+    fn try_from(value: i8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(EpicsScalarType::PvBoolean),
+            1 => Ok(EpicsScalarType::PvByte),
+            2 => Ok(EpicsScalarType::PvShort),
+            3 => Ok(EpicsScalarType::PvInt),
+            4 => Ok(EpicsScalarType::PvLong),
+            5 => Ok(EpicsScalarType::PvUbyte),
+            6 => Ok(EpicsScalarType::PvUshort),
+            7 => Ok(EpicsScalarType::PvUint),
+            8 => Ok(EpicsScalarType::PvUlong),
+            9 => Ok(EpicsScalarType::PvFloat),
+            10 => Ok(EpicsScalarType::PvDouble),
+            11 => Ok(EpicsScalarType::PvString),
+            _ => Err(()),
+        }
+    }
+    
 }
 
 
@@ -108,7 +148,6 @@ pub struct PVStructure {
 
 #[cxx::bridge]
 mod ffi {
-
     unsafe extern "C++" {
         include!("wrapper.h");
 
@@ -116,16 +155,16 @@ mod ffi {
         type ClientProvider;
         type ClientChannel;
         type PVStructure;
-        type ScalarType;
 
         // Declare functions that return shared pointers to C++ classes
         fn get_client_provider() -> SharedPtr<ClientProvider>;
         fn get_client_channel(name: &str) -> SharedPtr<ClientChannel>;
         fn get_pv_value_fields_as_string(name: &str) -> String;
         fn get_pv_value_fields_as_struct(name: &str) -> SharedPtr<PVStructure>;
+        fn get_pv_field_data_type(pvdata: SharedPtr<PVStructure>) -> i8;
 
         // Declare accessor methods for NTScalar
-        fn nt_scalar_get_value_type(pvdata: SharedPtr<PVStructure>) -> SharedPtr<ScalarType>;
+        fn nt_scalar_get_value_type(pvdata: SharedPtr<PVStructure>) -> i8;
         fn nt_scalar_get_value_boolean(pvdata: SharedPtr<PVStructure>) -> bool;
         fn nt_scalar_get_value_byte(pvdata: SharedPtr<PVStructure>) -> i8;
         fn nt_scalar_get_value_short(pvdata: SharedPtr<PVStructure>) -> i16;
@@ -166,7 +205,6 @@ mod ffi {
         fn nt_scalar_get_value_alarm_high_warning_severity(pvdata: SharedPtr<PVStructure>) -> i32;
         fn nt_scalar_get_value_alarm_high_alarm_severity(pvdata: SharedPtr<PVStructure>) -> i32;
         fn nt_scalar_get_value_alarm_hysteresis(pvdata: SharedPtr<PVStructure>) -> i8;
-
     }
 }
 
@@ -216,30 +254,74 @@ pub fn pvget_all_fields_as_nt_scalar(name: &str) -> Option<PVStructure> {
     
     Some(PVStructure {
         value: {
-            let value_type_ptr: SharedPtr<ffi::ScalarType> = ffi::nt_scalar_get_value_type(pv_struct_ptr.clone());
-            let value_type = value_type_ptr.as_ref().unwrap() as *const ffi::ScalarType as usize;
-
-            match value_type {
-                0 => NTScalarValue::Boolean(ffi::nt_scalar_get_value_boolean(pv_struct_ptr.clone())),
-                1 => NTScalarValue::Byte(ffi::nt_scalar_get_value_byte(pv_struct_ptr.clone())),
-                2 => NTScalarValue::Short(ffi::nt_scalar_get_value_short(pv_struct_ptr.clone())),
-                3 => NTScalarValue::Int(ffi::nt_scalar_get_value_int(pv_struct_ptr.clone())),
-                4 => NTScalarValue::Long(ffi::nt_scalar_get_value_long(pv_struct_ptr.clone())),
-                5 => NTScalarValue::UByte(ffi::nt_scalar_get_value_unsigned_byte(pv_struct_ptr.clone())),
-                6 => NTScalarValue::UShort(ffi::nt_scalar_get_value_unsigned_short(pv_struct_ptr.clone())),
-                7 => NTScalarValue::UInt(ffi::nt_scalar_get_value_unsigned_int(pv_struct_ptr.clone())),
-                8 => NTScalarValue::ULong(ffi::nt_scalar_get_value_unsigned_long(pv_struct_ptr.clone())),
-                9 => NTScalarValue::Float(ffi::nt_scalar_get_value_float(pv_struct_ptr.clone())),
-                10 => NTScalarValue::Double(ffi::nt_scalar_get_value_double(pv_struct_ptr.clone())),
-                11 => {
-                    let ptr = ffi::nt_scalar_get_value_string(pv_struct_ptr.clone());
-                    if ptr.is_null() {
-                        NTScalarValue::String(String::new())
-                    } else {
-                        NTScalarValue::String(unsafe { std::ffi::CStr::from_ptr(ptr).to_string_lossy().into_owned() })
+            let pv_data_type = EpicsDataType::try_from(ffi::get_pv_field_data_type(pv_struct_ptr.clone()));
+            if pv_data_type.is_err() {
+                panic!("Failed to convert data type");
+            }
+            match pv_data_type.unwrap() {
+                EpicsDataType::Scalar => {
+                    // Data type is a normal scalar
+                    let scalar_type = EpicsScalarType::try_from(ffi::nt_scalar_get_value_type(pv_struct_ptr.clone()));
+                    if scalar_type.is_err() {
+                        panic!("Failed to convert data type");
+                    }
+                    match scalar_type.unwrap() {
+                        EpicsScalarType::PvBoolean => {
+                            NTScalarValue::Boolean(ffi::nt_scalar_get_value_boolean(pv_struct_ptr.clone()))
+                        },
+                        EpicsScalarType::PvByte => {
+                            NTScalarValue::Byte(ffi::nt_scalar_get_value_byte(pv_struct_ptr.clone()))
+                        },
+                        EpicsScalarType::PvShort => {
+                            NTScalarValue::Short(ffi::nt_scalar_get_value_short(pv_struct_ptr.clone()))
+                        },
+                        EpicsScalarType::PvInt => {
+                            NTScalarValue::Int(ffi::nt_scalar_get_value_int(pv_struct_ptr.clone()))
+                        },
+                        EpicsScalarType::PvLong => {
+                            NTScalarValue::Long(ffi::nt_scalar_get_value_long(pv_struct_ptr.clone()))
+                        },
+                        EpicsScalarType::PvUbyte => {
+                            NTScalarValue::UByte(ffi::nt_scalar_get_value_unsigned_byte(pv_struct_ptr.clone()))
+                        },
+                        EpicsScalarType::PvUshort => {
+                            NTScalarValue::UShort(ffi::nt_scalar_get_value_unsigned_short(pv_struct_ptr.clone()))
+                        },
+                        EpicsScalarType::PvUint => {
+                            NTScalarValue::UInt(ffi::nt_scalar_get_value_unsigned_int(pv_struct_ptr.clone()))
+                        },
+                        EpicsScalarType::PvUlong => {
+                            NTScalarValue::ULong(ffi::nt_scalar_get_value_unsigned_long(pv_struct_ptr.clone()))
+                        },
+                        EpicsScalarType::PvFloat => {
+                            NTScalarValue::Float(ffi::nt_scalar_get_value_float(pv_struct_ptr.clone()))
+                        },
+                        EpicsScalarType::PvDouble => {
+                            NTScalarValue::Double(ffi::nt_scalar_get_value_double(pv_struct_ptr.clone()))
+                        },
+                        EpicsScalarType::PvString => {
+                            let ptr = ffi::nt_scalar_get_value_string(pv_struct_ptr.clone());
+                            if ptr.is_null() {
+                                NTScalarValue::String(String::new())
+                            } else {
+                                NTScalarValue::String(unsafe { std::ffi::CStr::from_ptr(ptr).to_string_lossy().into_owned() })
+                            }
+                        }
                     }
                 },
-                _ => panic!("Unknown type"),
+                /*EpicsDataType::ScalarArray => {
+                }*/
+                EpicsDataType::Structure => {
+                    // Data type normally assocuated with EPICS dbrecords "bo" or "bi"
+                    NTScalarValue::Boolean(ffi::nt_scalar_get_value_boolean(pv_struct_ptr.clone()))
+                },
+                /*EpicsDataType::StructureArray => {
+                },
+                EpicsDataType::Union => {
+                },
+                EpicsDataType::UnionArray => {
+                },*/
+                _ => panic!("Unsupported field data type"),
             }
         },
         alarm_severity: ffi::nt_scalar_get_alarm_severity(pv_struct_ptr.clone()),

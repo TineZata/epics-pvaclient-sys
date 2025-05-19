@@ -860,42 +860,39 @@ int8_t nt_scalar_get_value_alarm_hysteresis(std::shared_ptr<PVStructure> pvStruc
     return valueAlarm_hysteresis;
 }
 
-std::shared_ptr<ScalarType> nt_scalar_get_value_type(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
+int8_t nt_scalar_get_value_type(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
     // Retrieve the raw pointer from the shared pointer
     const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
     if (!pvStructure) {
-        return nullptr;
+        return -1;
     }
     try {
         // Extract value
         auto valueField = pvStructure->getSubField<epics::pvData::PVScalar>("value");
         if (valueField) {
-            return std::make_shared<ScalarType>(valueField->getScalar()->getScalarType());
+            return (int8_t)(valueField->getScalar()->getScalarType());
         }
     } catch (std::exception &e) {
         // Handle exceptions and clean up
         std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
-        return nullptr;
+        return -1;
     }
-    return nullptr;
+    return -1;
 }
 
-std::shared_ptr<PVDataType> get_pv_field_data_type(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
+int8_t get_pv_field_data_type(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
     // Retrieve the raw pointer from the shared pointer
     const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
     if (!pvStructure) {
-        return nullptr;
+        return -1;
     }
     try {
         auto pvField = pvStructure->getSubField<epics::pvData::PVField>("value");
-        if (!pvField) {
-            return -1;
-        }
-        return std::make_shared<PVDataType>(pvField->getField()->getType());
+        return (int8_t)(pvField->getField()->getType());
     } catch (std::exception &e) {
         // Handle exceptions and clean up
         std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
-        return nullptr;
+        return -1;
     }
-    return nullptr;
+    return -1;
 }
