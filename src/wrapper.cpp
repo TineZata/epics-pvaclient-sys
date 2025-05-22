@@ -1,4 +1,5 @@
 #include "wrapper.h"
+#include "helpers.h"
 #include <sstream>
 
 // initialize the global variables
@@ -72,4 +73,41 @@ rust::String get_pv_value_fields_as_string(rust::Str name) {
         std::string error_msg = "Error: " + std::string(e.what());  // Concatenate using std::string
         return rust::String(error_msg);  // Convert back to rust::String
     }
+}
+
+std::shared_ptr<PVStructure> get_pv_value_fields_as_struct(rust::Str name) {
+    // Get the channel using the provided name
+    auto channel = get_client_channel(name);
+    // Check if the channel is initialized
+    if (!channel) {
+        std::cerr << "ClientChannel is not valid." << std::endl;
+        return nullptr;
+    }
+
+    // Retrieve the shared pointer from rust_client_channel
+    std::shared_ptr<const PVStructure> pvStructureSharedPtr;
+    try {
+        pvStructureSharedPtr = channel->get(3.0, nullptr);
+    } catch (const std::exception &e) {
+        std::cerr << "Error getting : channel->get() " << channel->name() << " " << e.what() << std::endl;
+        return nullptr;
+    }
+    return std::const_pointer_cast<PVStructure>(pvStructureSharedPtr);
+}
+
+int8_t get_pv_field_data_type(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
+    // Retrieve the raw pointer from the shared pointer
+    const epics::pvData::PVStructure* pvStructure = pvStructureSharedPtr.get();
+    if (!pvStructure) {
+        return -1;
+    }
+    try {
+        auto pvField = pvStructure->getSubField<epics::pvData::PVField>("value");
+        return (int8_t)(pvField->getField()->getType());
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTScalar: " << e.what() << std::endl;
+        return -1;
+    }
+    return -1;
 }

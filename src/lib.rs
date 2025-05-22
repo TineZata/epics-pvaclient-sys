@@ -65,41 +65,6 @@ impl TryFrom<i8> for EpicsScalarType {
     
 }
 
-
-pub enum NTTypes {
-    NTScalarBoolean = 0x00,
-    NTScalarByte = 0x01,
-    NTScalarShort = 0x02,
-    NTScalarInt = 0x03,
-    NTScalarLong = 0x04,
-    NTScalarpvUByte = 0x05,
-    NTScalarpvUShort = 0x06,
-    NTScalarpvUInt = 0x07,
-    NTScalarpvULong = 0x08,
-    NTScalarFloat = 0x09,
-    NTScalarDouble = 0x0A,
-    NTScalarString = 0x0B,
-
-    NTScalarArrayBoolean = 0x10,
-    NTScalarArrayByte = 0x11,
-    NTScalarArrayShort = 0x12,
-    NTScalarArrayInt = 0x13,
-    NTScalarArrayLong = 0x14,
-    NTScalarArraypvUByte = 0x15,
-    NTScalarArraypvUShort = 0x16,
-    NTScalarArraypvUInt = 0x17,
-    NTScalarArraypvULong = 0x18,
-    NTScalarArrayFloat = 0x19,
-    NTScalarArrayDouble = 0x1A,
-    NTScalarArrayString = 0x1B,
-
-    NTEnum = 0x20,
-    NTEnumArray = 0x21,
-
-    NTUnion = 0x30,
-    NTUnionArray = 0x31,
-}
-
 pub enum NTScalarValue {
     Boolean(bool),
     Byte(i8),
@@ -115,7 +80,7 @@ pub enum NTScalarValue {
     String(String),
 }
 
-pub struct PVStructure {
+pub struct NTScalar {
     pub value: NTScalarValue,
     pub alarm_severity: i32,
     pub alarm_status: i32,
@@ -144,6 +109,27 @@ pub struct PVStructure {
     pub value_alarm_high_warning_severity: i32,
     pub value_alarm_high_alarm_severity: i32,
     pub value_alarm_hysteresis: i8
+}
+/* enum_t value
+            int index
+            string[] choices
+        alarm_t alarm
+            int severity
+            int status
+            string message
+        structure timeStamp
+            long secondsPastEpoch
+            int nanoseconds
+            int userTag */
+pub struct NTEnum {
+    pub value_index: i32,
+    pub value_choices: Vec<String>,
+    pub alarm_severity: i32,
+    pub alarm_status: i32,
+    pub alarm_message: String,
+    pub timestamp_secondspastepoch: i64,
+    pub timestamp_nanoseconds: i32,
+    pub timestamp_user_tag: i32,
 }
 
 #[cxx::bridge]
@@ -243,7 +229,7 @@ pub fn pvget_all_fields_as_string(name: &str) -> String {
     ffi::get_pv_value_fields_as_string(name)
 }
 
-pub fn pvget_all_fields_as_nt_scalar(name: &str) -> Option<PVStructure> {
+pub fn pvget_all_fields_as_nt_scalar(name: &str) -> Option<NTScalar> {
     // Convert the shared pointer to NTScalar to a raw pointer
     let pv_struct_ptr = ffi::get_pv_value_fields_as_struct(name);
     
@@ -252,7 +238,7 @@ pub fn pvget_all_fields_as_nt_scalar(name: &str) -> Option<PVStructure> {
         return None; // Return None if the pointer is null
     }
     
-    Some(PVStructure {
+    Some(NTScalar {
         value: {
             let pv_data_type = EpicsDataType::try_from(ffi::get_pv_field_data_type(pv_struct_ptr.clone()));
             if pv_data_type.is_err() {
@@ -312,7 +298,7 @@ pub fn pvget_all_fields_as_nt_scalar(name: &str) -> Option<PVStructure> {
                 /*EpicsDataType::ScalarArray => {
                 }*/
                 EpicsDataType::Structure => {
-                    // Data type normally assocuated with EPICS dbrecords "bo" or "bi"
+                    // Data type normally associated with NTEnum from EPICS dbrecords such as "bo" or "bi"
                     NTScalarValue::Boolean(ffi::nt_scalar_get_value_boolean(pv_struct_ptr.clone()))
                 },
                 /*EpicsDataType::StructureArray => {

@@ -5,7 +5,9 @@ fn main() {
     let epics_base = env::var("EPICS_BASE").expect("EPICS_BASE environment variable not set");
 
     cxx_build::bridge("src/lib.rs")
-        .file("src/wrapper_pvdata.cpp")
+        .file("src/helpers.cpp")
+        .file("src/wrapper_nt_enum.cpp")
+        .file("src/wrapper_nt_scalar.cpp")
         .file("src/wrapper.cpp")
         .flag_if_supported("-std=c++17")
         .flag_if_supported("/EHsc") // Enable exception handling for MSVC
