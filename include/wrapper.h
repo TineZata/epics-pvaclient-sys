@@ -40,10 +40,11 @@ extern "C" {
     uint16_t nt_scalar_get_value_unsigned_short(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     uint32_t nt_scalar_get_value_unsigned_int(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     uint64_t nt_scalar_get_value_unsigned_long(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    
+    // Functions to get scalar values from NTScalar
     float nt_scalar_get_value_float(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     double nt_scalar_get_value_double(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     const char* nt_scalar_get_value_string(std::shared_ptr<PVStructure> pvStructureSharedPtr);
-
     int nt_scalar_get_alarm_severity(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     int nt_scalar_get_alarm_status(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     const char* nt_scalar_get_alarm_message(std::shared_ptr<PVStructure> pvStructureSharedPtr);
@@ -72,6 +73,9 @@ extern "C" {
     int32_t nt_scalar_get_value_alarm_high_alarm_severity(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     int8_t nt_scalar_get_value_alarm_hysteresis(std::shared_ptr<PVStructure> pvStructureSharedPtr);
 
-    
+    // Functions to get values from NTEnum
+    int nt_enum_get_value_index(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    const char* const* nt_enum_get_value_choices(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    size_t nt_enum_get_value_choices_count(std::shared_ptr<PVStructure> pvStructureSharedPtr);
 }
 

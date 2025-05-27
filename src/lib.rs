@@ -124,12 +124,12 @@ pub struct NTScalar {
 pub struct NTEnum {
     pub value_index: i32,
     pub value_choices: Vec<String>,
-    pub alarm_severity: i32,
+    /*pub alarm_severity: i32,
     pub alarm_status: i32,
     pub alarm_message: String,
     pub timestamp_secondspastepoch: i64,
     pub timestamp_nanoseconds: i32,
-    pub timestamp_user_tag: i32,
+    pub timestamp_user_tag: i32,*/
 }
 
 #[cxx::bridge]
@@ -163,7 +163,6 @@ mod ffi {
         fn nt_scalar_get_value_float(pvdata: SharedPtr<PVStructure>) -> f32;
         fn nt_scalar_get_value_double(pvdata: SharedPtr<PVStructure>) -> f64;
         fn nt_scalar_get_value_string(pvdata: SharedPtr<PVStructure>) -> *const c_char;
-        
         fn nt_scalar_get_alarm_severity(pvdata: SharedPtr<PVStructure>) -> i32;
         fn nt_scalar_get_alarm_status(pvdata: SharedPtr<PVStructure>) -> i32;
         fn nt_scalar_get_alarm_message(pvdata: SharedPtr<PVStructure>) -> *const c_char;
@@ -191,6 +190,11 @@ mod ffi {
         fn nt_scalar_get_value_alarm_high_warning_severity(pvdata: SharedPtr<PVStructure>) -> i32;
         fn nt_scalar_get_value_alarm_high_alarm_severity(pvdata: SharedPtr<PVStructure>) -> i32;
         fn nt_scalar_get_value_alarm_hysteresis(pvdata: SharedPtr<PVStructure>) -> i8;
+
+        // Declare accessor methods for NTEnum
+        fn nt_enum_get_value_index(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_enum_get_value_choices(pvdata: SharedPtr<PVStructure>) -> *const *const c_char;
+        fn nt_enum_get_value_choices_count(pvdata: SharedPtr<PVStructure>) -> usize;
     }
 }
 
@@ -375,3 +379,33 @@ pub fn pvget_all_fields_as_nt_scalar(name: &str) -> Option<NTScalar> {
     })
 }
 
+pub fn pvget_all_fields_as_nt_enum(name: &str) -> Option<NTEnum> {
+    // Convert the shared pointer to NTEnum to a raw pointer
+    let pv_struct_ptr = ffi::get_pv_value_fields_as_struct(name);
+    
+    // Check if the pointer is null
+    if pv_struct_ptr.is_null() {
+        return None; // Return None if the pointer is null
+    }
+    
+    Some(NTEnum {
+        value_index: ffi::nt_enum_get_value_index(pv_struct_ptr.clone()),
+        value_choices: {
+            let ptr = ffi::nt_enum_get_value_choices(pv_struct_ptr.clone());
+            
+            let count = ffi::nt_enum_get_value_choices_count(pv_struct_ptr.clone());
+            if ptr.is_null() || count == 0 {
+                Vec::new()
+            } else {
+                let choices = unsafe { std::slice::from_raw_parts(ptr, count) };
+                choices.iter().map(|&choice| {
+                    if choice.is_null() {
+                        String::new()
+                    } else {
+                        unsafe { std::ffi::CStr::from_ptr(choice).to_string_lossy().into_owned() }
+                    }
+                }).collect::<Vec<_>>()
+            }
+        },
+    })
+}

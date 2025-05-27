@@ -23,6 +23,7 @@ fn main() {
     println!("cargo:rustc-link-lib=static=pvaClient");
     println!("cargo:rustc-link-lib=static=pvAccess");
     println!("cargo:rustc-link-lib=static=pvData"); // This is likely missing
+    println!("cargo:rustc-link-lib=static=nt");
     println!("cargo:rustc-link-lib=static=ca");
     println!("cargo:rustc-link-lib=static=Com");
 }

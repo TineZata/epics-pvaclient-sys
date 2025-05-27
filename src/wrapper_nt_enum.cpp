@@ -58,3 +58,26 @@ const char* const* nt_enum_get_value_choices(std::shared_ptr<PVStructure> pvStru
     }
     return value_choices;
 }
+
+size_t nt_enum_get_value_choices_count(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
+    size_t choices_count = 0;
+
+    try {
+        std::shared_ptr<EpicsNtNTEnum> enumWrapper = EpicsNtNTEnum::wrap(pvStructureSharedPtr);
+        if (enumWrapper.get() != 0) {
+            auto choicesField = enumWrapper->getValue()->getSubField<epics::pvData::PVValueArray<std::string>>("choices");
+            auto castedChoicesField = std::dynamic_pointer_cast<const epics::pvData::PVStringArray>(choicesField);
+            if (castedChoicesField) {
+                choices_count = castedChoicesField->getLength();
+            }
+        } else {
+            std::cerr << "Invalid NTEnum structure." << std::endl;
+            return size_t(0);
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTEnum: " << e.what() << std::endl;
+        return size_t(0);
+    }
+    return choices_count;
+}
