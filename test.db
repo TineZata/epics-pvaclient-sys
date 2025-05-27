@@ -31,13 +31,6 @@ record(bo, "TEST:PV_Bool") {
     field(VAL, "1")
 }
 
-record(longout, "TEST:PV_Short") {
-    field(DESC, "Output test PV Short")
-    field(DTYP, "Soft Channel")
-    field(VAL, "-32768")
-    info(group, "TEST:GROUP1")
-}
-
 record(mbbo, "TEST:PV_Enum") {
     field(DESC, "Output test PV Enum")
     field(DTYP, "Soft Channel")
