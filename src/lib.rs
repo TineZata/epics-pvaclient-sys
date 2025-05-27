@@ -250,7 +250,7 @@ pub fn pvget_all_fields_as_string(name: &str) -> String {
 /// ## Example
 /// ```
 /// use epics_pvaclient_sys::pvget_all_fields_as_nt_scalar;
-/// let pv_name = "TEST:PV1";
+/// let pv_name = "TEST:PV_Double";
 /// if let Some(nt_scalar) = pvget_all_fields_as_nt_scalar(pv_name) {
 ///    println!("NTScalar for {}: {:?}", pv_name, nt_scalar);
 /// } else {
