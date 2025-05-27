@@ -1,6 +1,7 @@
 use cxx::SharedPtr;
 
 #[repr(i8)]
+#[derive(Debug, Clone)]
 pub enum EpicsDataType {
     Scalar = 0,
     ScalarArray = 1,
@@ -27,6 +28,7 @@ impl TryFrom<i8> for EpicsDataType {
 }
 
 #[repr(i8)]
+#[derive(Debug, Clone)]
 pub enum EpicsScalarType {
     PvBoolean = 0,
     PvByte = 1,
@@ -64,7 +66,7 @@ impl TryFrom<i8> for EpicsScalarType {
     }
     
 }
-
+#[derive(Debug, Clone)]
 pub enum NTScalarValue {
     Boolean(bool),
     Byte(i8),
@@ -80,6 +82,7 @@ pub enum NTScalarValue {
     String(String),
 }
 
+#[derive(Debug, Clone)]
 pub struct NTScalar {
     pub value: NTScalarValue,
     pub alarm_severity: i32,
@@ -121,6 +124,7 @@ pub struct NTScalar {
             long secondsPastEpoch
             int nanoseconds
             int userTag */
+#[derive(Debug, Clone)]
 pub struct NTEnum {
     pub value_index: i32,
     pub value_choices: Vec<String>,
@@ -205,19 +209,54 @@ mod ffi {
 }
 
 
+/// # Returns a shared pointer to the ClientProvider.
+/// 
+/// ## Example
+/// ```
+/// use epics_pvaclient_sys::get_client_provider;
+/// let provider = get_client_provider();
+/// ```
 pub fn get_client_provider() -> SharedPtr<ffi::ClientProvider> {
     ffi::get_client_provider()
 }
 
+/// # Returns a shared pointer to the ClientChannel for the given name.
+/// 
+/// ## Example
+/// ```
+/// use epics_pvaclient_sys::get_client_channel;
+/// let channel_name = "TEST:PV1";
+/// let channel = get_client_channel(channel_name);
+/// ```
 pub fn get_client_channel(name: &str) -> SharedPtr<ffi::ClientChannel> {
     ffi::get_client_channel(name)
 }
 
-
+/// # Returns a string representation of all fields for the given PV name.
+/// 
+/// ## Example
+/// ```
+/// use epics_pvaclient_sys::pvget_all_fields_as_string;
+/// let pv_name = "TEST:PV1";
+/// let fields_string = pvget_all_fields_as_string(pv_name);
+/// println!("Fields for {}: {}", pv_name, fields_string);
+/// ```
 pub fn pvget_all_fields_as_string(name: &str) -> String {
     ffi::get_pv_value_fields_as_string(name)
 }
 
+/// # Returns an NTScalar struct with all fields for the given PV name.
+///
+/// ## Example
+/// ```
+/// use epics_pvaclient_sys::pvget_all_fields_as_nt_scalar;
+/// let pv_name = "TEST:PV1";
+/// if let Some(nt_scalar) = pvget_all_fields_as_nt_scalar(pv_name) {
+///    println!("NTScalar for {}: {:?}", pv_name, nt_scalar);
+/// } else {
+///   println!("No NTScalar found for {}", pv_name);
+/// }
+/// ```
 pub fn pvget_all_fields_as_nt_scalar(name: &str) -> Option<NTScalar> {
     // Convert the shared pointer to NTScalar to a raw pointer
     let pv_struct_ptr = ffi::get_pv_value_fields_as_struct(name);
@@ -284,18 +323,6 @@ pub fn pvget_all_fields_as_nt_scalar(name: &str) -> Option<NTScalar> {
                         }
                     }
                 },
-                /*EpicsDataType::ScalarArray => {
-                }*/
-                EpicsDataType::Structure => {
-                    // Data type normally associated with NTEnum from EPICS dbrecords such as "bo" or "bi"
-                    NTScalarValue::Boolean(ffi::nt_scalar_get_value_boolean(pv_struct_ptr.clone()))
-                },
-                /*EpicsDataType::StructureArray => {
-                },
-                EpicsDataType::Union => {
-                },
-                EpicsDataType::UnionArray => {
-                },*/
                 _ => panic!("Unsupported field data type"),
             }
         },
@@ -364,6 +391,18 @@ pub fn pvget_all_fields_as_nt_scalar(name: &str) -> Option<NTScalar> {
     })
 }
 
+/// # Returns an NTEnum struct with all fields for the given PV name.
+/// 
+/// ## Example
+/// ```
+/// use epics_pvaclient_sys::pvget_all_fields_as_nt_enum;
+/// let pv_name = "TEST:PV_Enum";
+/// if let Some(nt_enum) = pvget_all_fields_as_nt_enum(pv_name) {
+///   println!("NTEnum for {}: {:?}", pv_name, nt_enum);
+/// } else {
+///   println!("No NTEnum found for {}", pv_name);
+/// }
+/// ```
 pub fn pvget_all_fields_as_nt_enum(name: &str) -> Option<NTEnum> {
     // Convert the shared pointer to NTEnum to a raw pointer
     let pv_struct_ptr = ffi::get_pv_value_fields_as_struct(name);
