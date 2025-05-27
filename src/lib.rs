@@ -124,12 +124,12 @@ pub struct NTScalar {
 pub struct NTEnum {
     pub value_index: i32,
     pub value_choices: Vec<String>,
-    /*pub alarm_severity: i32,
+    pub alarm_severity: i32,
     pub alarm_status: i32,
     pub alarm_message: String,
     pub timestamp_secondspastepoch: i64,
     pub timestamp_nanoseconds: i32,
-    pub timestamp_user_tag: i32,*/
+    pub timestamp_user_tag: i32,
 }
 
 #[cxx::bridge]
@@ -195,6 +195,12 @@ mod ffi {
         fn nt_enum_get_value_index(pvdata: SharedPtr<PVStructure>) -> i32;
         fn nt_enum_get_value_choices(pvdata: SharedPtr<PVStructure>) -> *const *const c_char;
         fn nt_enum_get_value_choices_count(pvdata: SharedPtr<PVStructure>) -> usize;
+        fn nt_enum_get_alarm_severity(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_enum_get_alarm_status(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_enum_get_alarm_message(pvdata: SharedPtr<PVStructure>) -> *const c_char;
+        fn nt_enum_get_timestamp_seconds(pvdata: SharedPtr<PVStructure>) -> i64;
+        fn nt_enum_get_timestamp_nanoseconds(pvdata: SharedPtr<PVStructure>) -> i32;
+        fn nt_enum_get_timestamp_user_tag(pvdata: SharedPtr<PVStructure>) -> i32;
     }
 }
 
@@ -407,5 +413,18 @@ pub fn pvget_all_fields_as_nt_enum(name: &str) -> Option<NTEnum> {
                 }).collect::<Vec<_>>()
             }
         },
+        alarm_severity: ffi::nt_enum_get_alarm_severity(pv_struct_ptr.clone()),
+        alarm_status: ffi::nt_enum_get_alarm_status(pv_struct_ptr.clone()),
+        alarm_message: {
+            let ptr = ffi::nt_enum_get_alarm_message(pv_struct_ptr.clone());
+            if ptr.is_null() {
+                String::new()
+            } else {
+                unsafe { std::ffi::CStr::from_ptr(ptr).to_string_lossy().into_owned() }
+            }
+        },
+        timestamp_secondspastepoch: ffi::nt_enum_get_timestamp_seconds(pv_struct_ptr.clone()),
+        timestamp_nanoseconds: ffi::nt_enum_get_timestamp_nanoseconds(pv_struct_ptr.clone()),
+        timestamp_user_tag: ffi::nt_enum_get_timestamp_user_tag(pv_struct_ptr.clone()),
     })
 }

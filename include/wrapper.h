@@ -77,5 +77,11 @@ extern "C" {
     int nt_enum_get_value_index(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     const char* const* nt_enum_get_value_choices(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     size_t nt_enum_get_value_choices_count(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    int nt_enum_get_alarm_severity(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    int nt_enum_get_alarm_status(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    const char* nt_enum_get_alarm_message(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    int64_t nt_enum_get_timestamp_seconds(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    int32_t nt_enum_get_timestamp_nanoseconds(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    int32_t nt_enum_get_timestamp_user_tag(std::shared_ptr<PVStructure> pvStructureSharedPtr);
 }
 

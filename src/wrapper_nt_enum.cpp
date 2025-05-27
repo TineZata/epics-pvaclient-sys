@@ -81,3 +81,117 @@ size_t nt_enum_get_value_choices_count(std::shared_ptr<PVStructure> pvStructureS
     }
     return choices_count;
 }
+
+int nt_enum_get_alarm_severity(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
+    int severity = -1; // Default value if not found
+
+    try {
+        std::shared_ptr<EpicsNtNTEnum> enumWrapper = EpicsNtNTEnum::wrap(pvStructureSharedPtr);
+        if (enumWrapper.get() != 0) {
+            severity = enumWrapper->getAlarm()->getSubField<epics::pvData::PVInt>("severity")->get();
+        } else {
+            std::cerr << "Invalid NTEnum structure." << std::endl;
+            return int(-1);
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTEnum: " << e.what() << std::endl;
+        return int(-1);
+    }
+    return severity;
+}
+
+int nt_enum_get_alarm_status(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
+    int status = -1; // Default value if not found
+
+    try {
+        std::shared_ptr<EpicsNtNTEnum> enumWrapper = EpicsNtNTEnum::wrap(pvStructureSharedPtr);
+        if (enumWrapper.get() != 0) {
+            status = enumWrapper->getAlarm()->getSubField<epics::pvData::PVInt>("status")->get();
+        } else {
+            std::cerr << "Invalid NTEnum structure." << std::endl;
+            return int(-1);
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTEnum: " << e.what() << std::endl;
+        return int(-1);
+    }
+    return status;
+}
+
+const char* nt_enum_get_alarm_message(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
+    const char* message = nullptr; // Default value if not found
+
+    try {
+        std::shared_ptr<EpicsNtNTEnum> enumWrapper = EpicsNtNTEnum::wrap(pvStructureSharedPtr);
+        if (enumWrapper.get() != 0) {
+            message = enumWrapper->getAlarm()->getSubField<epics::pvData::PVString>("message")->get().c_str();
+        } else {
+            std::cerr << "Invalid NTEnum structure." << std::endl;
+            return nullptr;
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTEnum: " << e.what() << std::endl;
+        return nullptr;
+    }
+    return message;
+}
+
+int64_t nt_enum_get_timestamp_seconds(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
+    int64_t seconds = -1; // Default value if not found
+
+    try {
+        std::shared_ptr<EpicsNtNTEnum> enumWrapper = EpicsNtNTEnum::wrap(pvStructureSharedPtr);
+        if (enumWrapper.get() != 0) {
+            seconds = enumWrapper->getTimeStamp()->getSubField<epics::pvData::PVLong>("secondsPastEpoch")->get();
+        } else {
+            std::cerr << "Invalid NTEnum structure." << std::endl;
+            return int64_t(-1);
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTEnum: " << e.what() << std::endl;
+        return int64_t(-1);
+    }
+    return seconds;
+}
+
+int32_t nt_enum_get_timestamp_nanoseconds(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
+    int32_t nanoseconds = -1; // Default value if not found
+
+    try {
+        std::shared_ptr<EpicsNtNTEnum> enumWrapper = EpicsNtNTEnum::wrap(pvStructureSharedPtr);
+        if (enumWrapper.get() != 0) {
+            nanoseconds = enumWrapper->getTimeStamp()->getSubField<epics::pvData::PVInt>("nanoseconds")->get();
+        } else {
+            std::cerr << "Invalid NTEnum structure." << std::endl;
+            return int32_t(-1);
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTEnum: " << e.what() << std::endl;
+        return int32_t(-1);
+    }
+    return nanoseconds;
+}
+
+int32_t nt_enum_get_timestamp_user_tag(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
+    int32_t user_tag = -1; // Default value if not found
+
+    try {
+        std::shared_ptr<EpicsNtNTEnum> enumWrapper = EpicsNtNTEnum::wrap(pvStructureSharedPtr);
+        if (enumWrapper.get() != 0) {
+            user_tag = enumWrapper->getTimeStamp()->getSubField<epics::pvData::PVInt>("userTag")->get();
+        } else {
+            std::cerr << "Invalid NTEnum structure." << std::endl;
+            return int32_t(-1);
+        }
+    } catch (std::exception &e) {
+        // Handle exceptions and clean up
+        std::cerr << "Error extracting NTEnum: " << e.what() << std::endl;
+        return int32_t(-1);
+    }
+    return user_tag;
+}
