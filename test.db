@@ -41,6 +41,7 @@ record(longout, "TEST:PV_Short") {
 record(mbbo, "TEST:PV_Enum") {
     field(DESC, "Output test PV Enum")
     field(DTYP, "Soft Channel")
+    field(ZRVL, "0")
     field(ONVL, "1")
     field(TWVL, "2")
     field(THVL, "3")
@@ -49,6 +50,7 @@ record(mbbo, "TEST:PV_Enum") {
     field(SXVL, "6")
     field(SVVL, "7")
     field(EIVL, "8")
+    field(ZRST, " 0  : 100 mA")
     field(ONST, " 1  :  10 mA")
     field(TWST, " 2  :   1 mA")
     field(THST, " 3  : 100 uA")
