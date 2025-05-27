@@ -1,8 +1,73 @@
-record(ao, "TEST:PV1") {
-    field(DESC, "Output test PV 1")
+record(ao, "TEST:PV_Double") {
+    field(DESC, "Output test PV Double")
     field(DTYP, "Soft Channel")
-    field(VAL, "87654.321")
+    field(VAL, "87654.3210123")
     field(EGU, "um")
+    field(PREC, "5")
+    info(group, "TEST:GROUP1")
+}
+
+record(longout, "TEST:PV_Int") {
+    field(DESC, "Output test PV Integer")
+    field(DTYP, "Soft Channel")
+    field(VAL, "1234")
+    field(EGU, "um")
+    info(group, "TEST:GROUP1")
+}
+
+record(stringout, "TEST:PV_String") {
+    field(DESC, "Output test PV String")
+    field(DTYP, "Soft Channel")
+    field(VAL, "Hello World")
+    info(group, "TEST:GROUP1")
+}
+
+record(bo, "TEST:PV_Bool") {
+    field(DESC, "Output test PV Bool")
+    field(DTYP, "Soft Channel")
+    field(ZNAM, "False")
+    field(ONAM, "True")
+    info(group, "TEST:GROUP1")
+    field(VAL, "1")
+}
+
+record(mbbo, "TEST:PV_Enum") {
+    field(DESC, "Output test PV Enum")
+    field(DTYP, "Soft Channel")
+    field(ZRVL, "0")
+    field(ONVL, "1")
+    field(TWVL, "2")
+    field(THVL, "3")
+    field(FRVL, "4")
+    field(FVVL, "5")
+    field(SXVL, "6")
+    field(SVVL, "7")
+    field(EIVL, "8")
+    field(ZRST, " 0  : 100 mA")
+    field(ONST, " 1  :  10 mA")
+    field(TWST, " 2  :   1 mA")
+    field(THST, " 3  : 100 uA")
+    field(FRST, " 4  :  10 uA")
+    field(FVST, " 5  :   1 uA")
+    field(SXST, " 6  : 100 nA")
+    field(SVST, " 7  :  10 nA")
+    field(EIST, " 8  :   1 nA")
+    info(group, "TEST:GROUP1")
+    field(VAL, "3")
+}
+
+record(mbbo, "TEST:PV_Byte") {
+    field(DESC, "Output test PV Byte")
+    field(DTYP, "Soft Channel")
+    field(VAL, "10")
+    info(group, "TEST:GROUP1")
+}
+
+
+record(ao, "TEST:PV1") {
+    field(DESC, "Input test PV 1")
+    field(DTYP, "Soft Channel")
+    field(VAL, "123.456")
     field(PREC, "3")
     info(group, "TEST:GROUP1")
 }
