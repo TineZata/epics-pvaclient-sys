@@ -95,7 +95,7 @@ record(ao, "TEST:PV1") {
     field(VAL, "123.456")
     field(PREC, "3")
     info(Q:group, {
-    "TEST:GROUP1":{
+    "TEST:GROUP1": {
         "Alias_PV1": {"+channel": "VAL"}
         }
     })
