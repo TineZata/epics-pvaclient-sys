@@ -33,7 +33,7 @@ std::shared_ptr<ClientChannel> get_client_channel(rust::Str name) {
         // Convert Rust `&str` (rust::Str) to C++ `std::string`
         std::string name_str(name);
 
-        // Check is channel is in the list of channels
+        // Check if channel is in the list of channels
         for (const std::shared_ptr<ClientChannel>& channel : client_channels) {
             if (channel->name() == name_str) {
                 return channel;  // Return existing channel if found
