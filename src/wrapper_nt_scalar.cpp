@@ -1,47 +1,42 @@
 #include "wrapper.h"
+#include "helpers.h"
 
-// Helper function to extract a string array
-std::vector<const char *> extract_string_array(const std::shared_ptr<const epics::pvData::PVStringArray> &array) {
-    std::vector<const char *> result;
-    if (array) {
-        epics::pvData::shared_vector<const std::string> data;
-        array->getAs(data);
-        for (const auto &str : data) {
-            result.push_back(_strdup(str.c_str()));
-        }
-    }
-    return result;
-}
-
-std::shared_ptr<PVStructure> get_pv_value_fields_as_struct(rust::Str name) {
-    std::string name_str(name);  // Convert Rust `&str` to C++ `std::string`
-    if (!rust_client_provider) {
-        rust_client_provider = get_client_provider(); // Assuming this function initializes the provider
-    }
-    if (!rust_client_channel) {
-        rust_client_channel = get_client_channel(name_str); // Assuming this function initializes the channel
-    }
-
-    // Check if the global channel is initialized
-    if (!rust_client_channel) {
-        std::cerr << "ClientChannel is not initialized." << std::endl;
-        return nullptr;
-    }
-
-    // Retrieve the shared pointer from rust_client_channel
-    std::shared_ptr<const PVStructure> pvStructureSharedPtr;
-    try {
-        pvStructureSharedPtr = rust_client_channel->get(3.0, nullptr);
-    } catch (const std::exception &e) {
-        std::cerr << "Error getting : " << name_str << e.what() << std::endl;
-        return nullptr;
-    }
-    if (!pvStructureSharedPtr) {
-        std::cerr << "Error: rust_client_channel->get() returned nullptr." << std::endl;
-        return nullptr;
-    }
-    return std::const_pointer_cast<PVStructure>(pvStructureSharedPtr);
-}
+/*
+epics:nt/NTScalar:1.0
+        double value
+        alarm_t alarm
+            int severity
+            int status
+            string message
+        structure timeStamp
+            long secondsPastEpoch
+            int nanoseconds
+            int userTag
+        structure display
+            double limitLow
+            double limitHigh
+            string description
+            string units
+            int precision
+            enum_t form
+                int index
+                string[] choices
+        control_t control
+            double limitLow
+            double limitHigh
+            double minStep
+        valueAlarm_t valueAlarm
+            boolean active
+            double lowAlarmLimit
+            double lowWarningLimit
+            double highWarningLimit
+            double highAlarmLimit
+            int lowAlarmSeverity
+            int lowWarningSeverity
+            int highWarningSeverity
+            int highAlarmSeverity
+            byte hysteresis
+*/
 
 bool nt_scalar_get_value_boolean(std::shared_ptr<PVStructure> pvStructureSharedPtr) {
     bool value = false;
@@ -880,7 +875,7 @@ int8_t nt_scalar_get_value_type(std::shared_ptr<PVStructure> pvStructureSharedPt
         // Extract value
         auto valueField = pvStructure->getSubField<epics::pvData::PVScalar>("value");
         if (valueField) {
-            return (int8_t)valueField->getScalar()->getScalarType();
+            return (int8_t)(valueField->getScalar()->getScalarType());
         }
     } catch (std::exception &e) {
         // Handle exceptions and clean up
@@ -889,3 +884,5 @@ int8_t nt_scalar_get_value_type(std::shared_ptr<PVStructure> pvStructureSharedPt
     }
     return -1;
 }
+
+

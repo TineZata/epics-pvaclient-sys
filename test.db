@@ -1,10 +1,104 @@
-record(ao, "TEST:PV1") {
-    field(DESC, "Output test PV 1")
+record(ao, "TEST:PV_Double") {
+    field(DESC, "Output test PV Double")
     field(DTYP, "Soft Channel")
-    field(VAL, "87654.321")
+    field(VAL, "87654.3210123")
     field(EGU, "um")
+    field(PREC, "5")
+    # JSON style metadata for grouping
+    info(Q:group, {
+        "TEST:GROUP1": { 
+            "Alias_Double": {"+channel": "VAL"}
+        }
+    })
+}
+
+record(longout, "TEST:PV_Int") {
+    field(DESC, "Output test PV Integer")
+    field(DTYP, "Soft Channel")
+    field(VAL, "1234")
+    field(EGU, "um")
+    info(Q:group, {
+        "TEST:GROUP1": {
+            "Alias_Integer": {"+channel": "VAL"}
+        }
+    })
+}
+
+record(stringout, "TEST:PV_String") {
+    field(DESC, "Output test PV String")
+    field(DTYP, "Soft Channel")
+    field(VAL, "Hello World")
+    info(Q:group, {
+        "TEST:GROUP1": {
+            "Alias_String": {"+channel": "VAL"}
+        }
+    })
+}
+
+record(bo, "TEST:PV_Bool") {
+    field(DESC, "Output test PV Bool")
+    field(DTYP, "Soft Channel")
+    field(ZNAM, "False")
+    field(ONAM, "True")
+    field(VAL, "1")
+    info(Q:group, {
+        "TEST:GROUP1": {
+            "Alias_Bool": {"+channel": "VAL"}
+        }
+    })
+}
+
+record(mbbo, "TEST:PV_Enum") {
+    field(DESC, "Output test PV Enum")
+    field(DTYP, "Soft Channel")
+    field(ZRVL, "0")
+    field(ONVL, "1")
+    field(TWVL, "2")
+    field(THVL, "3")
+    field(FRVL, "4")
+    field(FVVL, "5")
+    field(SXVL, "6")
+    field(SVVL, "7")
+    field(EIVL, "8")
+    field(ZRST, " 0  : 100 mA")
+    field(ONST, " 1  :  10 mA")
+    field(TWST, " 2  :   1 mA")
+    field(THST, " 3  : 100 uA")
+    field(FRST, " 4  :  10 uA")
+    field(FVST, " 5  :   1 uA")
+    field(SXST, " 6  : 100 nA")
+    field(SVST, " 7  :  10 nA")
+    field(EIST, " 8  :   1 nA")
+    field(VAL, "3")
+    info(Q:group, {
+        "TEST:GROUP1": {
+            "Alias_Enum": {"+channel": "VAL"}
+        }
+    })
+}
+
+record(mbbo, "TEST:PV_Byte") {
+    field(DESC, "Output test PV Byte")
+    field(DTYP, "Soft Channel")
+    field(VAL, "10")
+    info(Q:group, {
+        "TEST:GROUP1": {
+            "Alias_Byte": {"+channel": "VAL"}
+        }
+    })
+}
+
+
+record(ao, "TEST:PV1") {
+    field(DESC, "Input test PV 1")
+    field(DTYP, "Soft Channel")
+    field(VAL, "123.456")
     field(PREC, "3")
-    info(group, "TEST:GROUP1")
+    info(Q:group, {
+    "TEST:GROUP1": {
+        "Alias_PV1": {"+channel": "VAL"}
+        }
+    })
 }
 
 record(ai, "TEST:PV2") {
@@ -12,12 +106,20 @@ record(ai, "TEST:PV2") {
     field(DTYP, "Soft Channel")
     field(VAL, "4.56")
     field(PREC, "2")
-    info(group, "TEST:GROUP1")
+    info(Q:group, {
+    "TEST:GROUP1": {
+        "Alias_PV2": {"+channel": "VAL"}
+        }
+    })
 }
 
 record(longin, "TEST:PV3") {
     field(DESC, "Input test PV 3")
     field(DTYP, "Soft Channel")
     field(VAL, "303")
-    info(group, "TEST:GROUP1")
+    info(Q:group, {
+    "TEST:GROUP1": {
+        "Alias_PV3": {"+channel": "VAL"}
+        }
+    })
 }

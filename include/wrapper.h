@@ -3,17 +3,20 @@
 #include <rust/cxx.h>  // Required for Rust interop
 #include <pva/client.h>
 #include <pv/pvData.h>
+#include <pv/nt.h>
 #include <vector>
 #include <memory>
 
 using ClientProvider = pvac::ClientProvider;
 using ClientChannel = pvac::ClientChannel;
 using PVStructure = epics::pvData::PVStructure;
+using ScalarType = epics::pvData::ScalarType;
+using EpicsNtNTEnum = epics::nt::NTEnum;
 
 // Global map to store ClientProvider instances
-extern std::shared_ptr<ClientProvider> rust_client_provider; 
-// Global map to store ClientChannel instances
-extern std::shared_ptr<ClientChannel> rust_client_channel; 
+extern std::shared_ptr<ClientProvider> client_provider; 
+// List of all ClientChannel instances
+extern std::vector<std::shared_ptr<ClientChannel>> client_channels;
 
 // Function to create a ClientProvider
 std::shared_ptr<ClientProvider> get_client_provider();
@@ -24,26 +27,10 @@ std::shared_ptr<ClientChannel> get_client_channel(rust::Str name);
 // Function to get all PV value fields as a string
 rust::String get_pv_value_fields_as_string(rust::Str name);
 
-// Enum for scalar types
-enum ScalarType {
-    pvBoolean,
-    pvByte,
-    pvShort,
-    pvInt,
-    pvLong,
-    pvUByte,
-    pvUShort,
-    pvUInt,
-    pvULong,
-    pvFloat,
-    pvDouble,
-    pvString,
-};
-
-
 std::shared_ptr<PVStructure> get_pv_value_fields_as_struct(rust::Str name);
-
 extern "C" {
+    int8_t get_pv_field_data_type(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    int8_t nt_scalar_get_value_type(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     bool nt_scalar_get_value_boolean(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     int8_t nt_scalar_get_value_byte(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     int16_t nt_scalar_get_value_short(std::shared_ptr<PVStructure> pvStructureSharedPtr);
@@ -53,10 +40,11 @@ extern "C" {
     uint16_t nt_scalar_get_value_unsigned_short(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     uint32_t nt_scalar_get_value_unsigned_int(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     uint64_t nt_scalar_get_value_unsigned_long(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    
+    // Functions to get scalar values from NTScalar
     float nt_scalar_get_value_float(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     double nt_scalar_get_value_double(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     const char* nt_scalar_get_value_string(std::shared_ptr<PVStructure> pvStructureSharedPtr);
-
     int nt_scalar_get_alarm_severity(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     int nt_scalar_get_alarm_status(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     const char* nt_scalar_get_alarm_message(std::shared_ptr<PVStructure> pvStructureSharedPtr);
@@ -85,6 +73,15 @@ extern "C" {
     int32_t nt_scalar_get_value_alarm_high_alarm_severity(std::shared_ptr<PVStructure> pvStructureSharedPtr);
     int8_t nt_scalar_get_value_alarm_hysteresis(std::shared_ptr<PVStructure> pvStructureSharedPtr);
 
-    int8_t nt_scalar_get_value_type(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    // Functions to get values from NTEnum
+    int nt_enum_get_value_index(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    const char* const* nt_enum_get_value_choices(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    size_t nt_enum_get_value_choices_count(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    int nt_enum_get_alarm_severity(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    int nt_enum_get_alarm_status(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    const char* nt_enum_get_alarm_message(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    int64_t nt_enum_get_timestamp_seconds(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    int32_t nt_enum_get_timestamp_nanoseconds(std::shared_ptr<PVStructure> pvStructureSharedPtr);
+    int32_t nt_enum_get_timestamp_user_tag(std::shared_ptr<PVStructure> pvStructureSharedPtr);
 }
 
