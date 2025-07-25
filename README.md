@@ -32,7 +32,7 @@ This crate uses the following crates to bridge Rust and EPICS C++ code:
 
 - **Linux support is planned** in a future release.
 
-# Status
+## Status
 This crate is intended for use as an internal dependency of a future `epics-pvaclient` crate, which will provide a safe and ergonomic API for application developers. It is not designed for standalone use.
 
 The API and build system are actively evolving and may change as the project matures.
